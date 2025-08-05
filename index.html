@@ -39,77 +39,10 @@
     }
   </script>
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=你的_MAPS_API_KEY&callback=initMap">
   </script>
 
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    // Firebase 設定
-    const firebaseConfig = {
-      apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
-      authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
-      projectId: "taiwan-horror-map-e257d",
-      storageBucket: "taiwan-horror-map-e257d.firebasestorage.app",
-      messagingSenderId: "59145752144",
-      appId: "1:59145752144:web:1f6ccc6fecd280defc8b55",
-      measurementId: "G-FR1FZD064W"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // 把 Firestore 文章抓出來
-    async function loadPosts() {
-      const querySnapshot = await getDocs(collection(db, "posts"));
-      let groups = {};
-
-      querySnapshot.forEach((doc) => {
-        let data = doc.data();
-        let region = data.place || "未分類";
-        if (!groups[region]) groups[region] = [];
-        groups[region].push({ id: doc.id, ...data });
-      });
-
-      renderSidebar(groups);
-    }
-
-    // 在左邊生成文章清單
-    function renderSidebar(groups) {
-      const sidebar = document.getElementById("sidebar");
-      sidebar.innerHTML = "";
-      for (let region in groups) {
-        let h3 = document.createElement("h3");
-        h3.innerText = region;
-        sidebar.appendChild(h3);
-
-        let ul = document.createElement("ul");
-        groups[region].forEach(post => {
-          let li = document.createElement("li");
-          let a = document.createElement("a");
-          a.innerText = post.title;
-          a.href = "#";
-          a.onclick = () => {
-            if (post.coords) {
-              let [lat, lng] = post.coords.split(",").map(Number);
-              let pos = { lat, lng };
-              map.setCenter(pos);
-              map.setZoom(14);
-              new google.maps.Marker({ position: pos, map: map, title: post.title });
-            } else {
-              alert("此文章尚未提供座標");
-            }
-          };
-          li.appendChild(a);
-          ul.appendChild(li);
-        });
-        sidebar.appendChild(ul);
-      }
-    }
-
-    loadPosts();
-  </script>
+  <!-- App 主要邏輯 -->
+  <script type="module" src="./js/main.js"></script>
 </body>
 </html>
