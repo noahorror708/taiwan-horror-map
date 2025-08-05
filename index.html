@@ -4,191 +4,112 @@
   <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#111; color:#eee; margin:0; }
-    h1,h2,h3 { color:#ff4444; }
-    a { color:#66ccff; text-decoration:none; }
-    #map { height: 400px; width: 100%; margin:20px 0; }
-
-    /* Sidebar */
+    body { margin:0; font-family: Arial, sans-serif; background:#111; color:#eee; }
+    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; }
+    #container { display:flex; height:calc(100vh - 60px); }
     #sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 250px;
-      height: 100%;
-      background: #222;
-      padding: 20px;
-      overflow-y: auto;
+      width:250px; background:#222; overflow-y:auto; padding:10px;
     }
-    #content {
-      margin-left: 270px;
-      padding: 20px;
-    }
-    #sidebar ul { list-style:none; padding-left: 15px; }
+    #sidebar h3 { margin:10px 0; color:#66ccff; }
+    #sidebar ul { list-style:none; padding:0; }
     #sidebar li { margin:5px 0; }
-
-    /* Card box */
-    #counters, #topPosts, #submitForm {
-      margin:20px auto; padding:20px; max-width:600px;
-      background:#222; border-radius:12px;
-    }
-
-    /* 回到頂端按鈕 */
-    #backToTop {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #ff4444;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
-      cursor: pointer;
-      display: none;
-    }
+    #sidebar a { color:#eee; text-decoration:none; display:block; padding:5px; border-radius:6px; }
+    #sidebar a:hover { background:#333; }
+    #map { flex:1; }
   </style>
 </head>
 <body>
-  <!-- 左側文章列表 -->
-  <div id="sidebar">
-    <h2>📖 文章列表</h2>
-    <div id="articleList">載入中…</div>
-  </div>
-
-  <!-- 主內容 -->
-  <div id="content">
-    <h1>台灣恐怖地圖</h1>
+  <h1>台灣恐怖地圖</h1>
+  <div id="container">
+    <div id="sidebar">
+      <p>📖 文章清單載入中...</p>
+    </div>
     <div id="map"></div>
-
-    <!-- 熱門排行 -->
-    <div id="topPosts">
-      <h2>🔥 今日最熱門文章 TOP 3</h2>
-      <ol id="ranking"><li>載入中…</li></ol>
-    </div>
-
-    <!-- 訪客統計 -->
-    <div id="counters">
-      <h2>📊 訪客統計</h2>
-      <p>今日人數：<span id="todayCount">0</span></p>
-      <p>累積人數：<span id="totalCount">0</span></p>
-    </div>
-
-    <!-- 投稿表單 -->
-    <div id="submitForm">
-      <h2>📝 我要投稿</h2>
-      <iframe src="https://forms.gle/kDaPh9dUTWN5Zg3i7" 
-              width="100%" height="600" frameborder="0">載入中…</iframe>
-    </div>
   </div>
-
-  <!-- 回到頂端按鈕 -->
-  <button id="backToTop">↑</button>
 
   <!-- Google Maps -->
   <script>
+    let map;
     function initMap() {
       const taiwan = { lat: 23.6978, lng: 120.9605 };
-      const map = new google.maps.Map(document.getElementById("map"), {
+      map = new google.maps.Map(document.getElementById("map"), {
         zoom: 7,
         center: taiwan,
       });
-      new google.maps.Marker({ position: taiwan, map: map });
     }
   </script>
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
   </script>
 
-  <!-- CountAPI + 熱門排行 + Sidebar -->
-  <script>
-    const NAMESPACE = "taiwan-horror-map";
-    const today = new Date();
-    const todayKey = `${today.getFullYear()}${today.getMonth()+1}${today.getDate()}`;
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 訪客累積
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/totalVisitors`)
-      .then(r => r.json())
-      .then(d => document.getElementById("totalCount").innerText = d.value);
+    // Firebase 設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
+      authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
+      projectId: "taiwan-horror-map-e257d",
+      storageBucket: "taiwan-horror-map-e257d.firebasestorage.app",
+      messagingSenderId: "59145752144",
+      appId: "1:59145752144:web:1f6ccc6fecd280defc8b55",
+      measurementId: "G-FR1FZD064W"
+    };
 
-    // 今日訪客
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/visitors_${todayKey}`)
-      .then(r => r.json())
-      .then(d => document.getElementById("todayCount").innerText = d.value);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    // 動態讀取文章列表 + 分地區
-    async function loadArticles() {
-      let posts = [];
-      try {
-        const res = await fetch("posts.json");
-        posts = await res.json();
-      } catch(e) {
-        console.error("讀取 posts.json 失敗", e);
-      }
+    // 把 Firestore 文章抓出來
+    async function loadPosts() {
+      const querySnapshot = await getDocs(collection(db, "posts"));
+      let groups = {};
 
-      // 分組
-      const grouped = {};
-      posts.forEach(post => {
-        if (!grouped[post.region]) grouped[post.region] = [];
-        grouped[post.region].push(post);
+      querySnapshot.forEach((doc) => {
+        let data = doc.data();
+        let region = data.place || "未分類";
+        if (!groups[region]) groups[region] = [];
+        groups[region].push({ id: doc.id, ...data });
       });
 
-      const container = document.getElementById("articleList");
-      container.innerHTML = "";
+      renderSidebar(groups);
+    }
 
-      Object.keys(grouped).forEach(region => {
-        const h3 = document.createElement("h3");
-        h3.textContent = region;
-        container.appendChild(h3);
+    // 在左邊生成文章清單
+    function renderSidebar(groups) {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.innerHTML = "";
+      for (let region in groups) {
+        let h3 = document.createElement("h3");
+        h3.innerText = region;
+        sidebar.appendChild(h3);
 
-        const ul = document.createElement("ul");
-        grouped[region].forEach(p => {
-          const li = document.createElement("li");
-          li.innerHTML = `<a href="${p.url}" target="_blank">${p.title}</a>`;
+        let ul = document.createElement("ul");
+        groups[region].forEach(post => {
+          let li = document.createElement("li");
+          let a = document.createElement("a");
+          a.innerText = post.title;
+          a.href = "#";
+          a.onclick = () => {
+            if (post.coords) {
+              let [lat, lng] = post.coords.split(",").map(Number);
+              let pos = { lat, lng };
+              map.setCenter(pos);
+              map.setZoom(14);
+              new google.maps.Marker({ position: pos, map: map, title: post.title });
+            } else {
+              alert("此文章尚未提供座標");
+            }
+          };
+          li.appendChild(a);
           ul.appendChild(li);
         });
-        container.appendChild(ul);
-      });
-
-      // 熱門排行
-      loadRanking(posts);
+        sidebar.appendChild(ul);
+      }
     }
 
-    async function loadRanking(posts) {
-      let results = [];
-      for (let post of posts) {
-        let res = await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${post.id}_${todayKey}`)
-          .then(r => r.json()).catch(() => null);
-        results.push({
-          title: post.title,
-          url: post.url,
-          count: res && res.value ? res.value : 0
-        });
-      }
-      results.sort((a, b) => b.count - a.count);
-      const top3 = results.slice(0, 3);
-      const list = document.getElementById("ranking");
-      list.innerHTML = "";
-      top3.forEach(p => {
-        let li = document.createElement("li");
-        li.innerHTML = `<a href="${p.url}" target="_blank">${p.title}</a> - ${p.count} 次觀看`;
-        list.appendChild(li);
-      });
-    }
-
-    loadArticles();
-
-    // 回到頂端按鈕
-    const btn = document.getElementById("backToTop");
-    window.onscroll = () => {
-      if (document.documentElement.scrollTop > 200) {
-        btn.style.display = "block";
-      } else {
-        btn.style.display = "none";
-      }
-    };
-    btn.onclick = () => window.scrollTo({top:0, behavior:"smooth"});
+    loadPosts();
   </script>
 </body>
 </html>
