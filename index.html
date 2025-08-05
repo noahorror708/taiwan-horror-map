@@ -40,12 +40,27 @@
     article h2 {
       color: #ff6666;
     }
+    /* 切換按鈕 */
+    .toggle-btn {
+      margin: 10px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      background: #ff4444;
+      color: #fff;
+    }
+    .toggle-btn:hover {
+      background: #ff6666;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>台灣恐怖地圖</h1>
     <p>收集台灣各地的恐怖傳說</p>
+    <button class="toggle-btn" onclick="toggleMapStyle()">切換地圖樣式</button>
   </header>
 
   <!-- 地圖 -->
@@ -64,17 +79,22 @@
   </section>
 
   <script>
+    let map;
+    let darkMode = true; // 預設黑暗版
+
+    const darkStyle = [
+      { elementType: "geometry", stylers: [{ color: "#1d1d1d" }] },
+      { elementType: "labels.text.fill", stylers: [{ color: "#ffffff" }] },
+      { elementType: "labels.text.stroke", stylers: [{ color: "#000000" }] },
+      { featureType: "water", elementType: "geometry", stylers: [{ color: "#222222" }] }
+    ];
+
     function initMap() {
       const taiwan = { lat: 23.6978, lng: 120.9605 };
-      const map = new google.maps.Map(document.getElementById("map"), {
+      map = new google.maps.Map(document.getElementById("map"), {
         zoom: 7,
         center: taiwan,
-        styles: [
-          { elementType: "geometry", stylers: [{ color: "#1d1d1d" }] },
-          { elementType: "labels.text.fill", stylers: [{ color: "#ffffff" }] },
-          { elementType: "labels.text.stroke", stylers: [{ color: "#000000" }] },
-          { featureType: "water", elementType: "geometry", stylers: [{ color: "#222222" }] }
-        ]
+        styles: darkStyle // 預設黑暗模式
       });
 
       // 範例標記
@@ -87,6 +107,14 @@
         position: { lat: 24.1477, lng: 120.6736 }, // 台中
         map,
         title: "台中鬼學校"
+      });
+    }
+
+    // 切換地圖樣式
+    function toggleMapStyle() {
+      darkMode = !darkMode;
+      map.setOptions({
+        styles: darkMode ? darkStyle : null
       });
     }
   </script>
