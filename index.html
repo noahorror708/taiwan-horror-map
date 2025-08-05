@@ -2,12 +2,67 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>Taiwan Horror Map</title>
+  <title>台灣恐怖地圖</title>
   <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <h1>台灣恐怖地圖</h1>
-  <div id="map"></div>
-  <script src="script.js"></script>
+  <!-- 導覽列 -->
+  <nav>
+    <a href="index.html">首頁</a> |
+    <a href="submit.html">我要投稿</a> |
+    <a href="about.html">關於本站</a>
+  </nav>
+
+  <header>
+    <h1>👻 台灣恐怖地圖</h1>
+    <p>收集台灣各地靈異故事與都市傳說，帶你探索最陰森的角落。</p>
+  </header>
+
+  <!-- 累積瀏覽次數 -->
+  <section id="counter">
+    <h3>本站總瀏覽次數： <span id="viewCount">載入中...</span></h3>
+  </section>
+
+  <!-- Google Translate -->
+  <div id="google_translate_element"></div>
+
+  <!-- 地圖 -->
+  <section>
+    <h2>🗺️ 恐怖地圖</h2>
+    <div id="map" style="width:100%;height:500px;"></div>
+  </section>
+
+  <!-- 故事列表 -->
+  <section>
+    <h2>📖 故事收集</h2>
+    <div class="story">
+      <h3>基隆鬼屋</h3>
+      <p><strong>地點：</strong> 基隆市中山區</p>
+      <p><strong>恐怖指數：</strong> ★★★★☆</p>
+      <p>相傳這棟荒廢的老屋曾經傳出詭異的哭聲，許多人夜晚經過時聽到腳步聲跟隨……</p>
+    </div>
+
+    <div class="story">
+      <h3>淡水紅毛城的白衣女子</h3>
+      <p><strong>地點：</strong> 新北市淡水區</p>
+      <p><strong>恐怖指數：</strong> ★★★☆☆</p>
+      <p>深夜裡，有人看見白衣女子在紅毛城外徘徊，眼神空洞……</p>
+    </div>
+  </section>
+
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=你的API金鑰&callback=initMap" async defer></script>
+
+  <!-- Google Translate -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        {pageLanguage: 'zh-TW', includedLanguages: 'en,ja,ko'},
+        'google_translate_element'
+      );
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
