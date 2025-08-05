@@ -1,97 +1,27 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <title>台灣恐怖地圖</title>
-  <style>
-    body { font-family: Arial, sans-serif; background:#111; color:#eee; text-align:center; }
-    #map { height: 400px; width: 100%; margin:20px 0; }
-    #counters, #topPosts { margin:20px auto; padding:20px; max-width:600px; background:#222; border-radius:12px; }
-    h1,h2 { color:#ff4444; }
-    a { color:#66ccff; text-decoration:none; }
-  </style>
-</head>
-<body>
-  <h1>台灣恐怖地圖</h1>
-  <div id="map"></div>
+<div id="latestPosts">
+  <h2>🆕 最新文章</h2>
+  <ul id="latestList"><li>載入中…</li></ul>
+</div>
 
-  <div id="topPosts">
-    <h2>🔥 今日最熱門文章 TOP 3</h2>
-    <ol id="ranking"><li>載入中…</li></ol>
-  </div>
+<script>
+  async function loadLatest(posts) {
+    // 取最後 3 篇
+    const latest = posts.slice(-3).reverse(); 
+    const list = document.getElementById("latestList");
+    list.innerHTML = "";
+    latest.forEach(p => {
+      let li = document.createElement("li");
+      li.innerHTML = `<a href="${p.url}">${p.title}</a>`;
+      list.appendChild(li);
+    });
+  }
 
-  <div id="counters">
-    <h2>📊 訪客統計</h2>
-    <p>今日人數：<span id="todayCount">0</span></p>
-    <p>累積人數：<span id="totalCount">0</span></p>
-  </div>
+  async function loadPosts() {
+    let res = await fetch("posts.json");
+    let posts = await res.json();
+    loadRanking(posts);   // 排行榜
+    loadLatest(posts);    // 最新文章
+  }
 
-  <p>
-    <a href="post1.html">閱讀文章 1</a> | 
-    <a href="post2.html">閱讀文章 2</a> | 
-    <a href="submit.html">我要投稿</a>
-  </p>
-
-  <!-- Google Maps -->
-  <script>
-    function initMap() {
-      const taiwan = { lat: 23.6978, lng: 120.9605 };
-      const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 7,
-        center: taiwan,
-      });
-      new google.maps.Marker({ position: taiwan, map: map });
-    }
-  </script>
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
-  </script>
-
-  <!-- CountAPI 訪客計數 -->
-  <script>
-    const NAMESPACE = "taiwan-horror-map";
-    const today = new Date();
-    const todayKey = `${today.getFullYear()}${today.getMonth()+1}${today.getDate()}`;
-
-    // 累積
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/totalVisitors`)
-      .then(r => r.json())
-      .then(d => document.getElementById("totalCount").innerText = d.value);
-
-    // 今日
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/visitors_${todayKey}`)
-      .then(r => r.json())
-      .then(d => document.getElementById("todayCount").innerText = d.value);
-
-    // 文章清單
-    const posts = [
-      { id: "post1", title: "台中 XX 鬼屋" , url: "post1.html" },
-      { id: "post2", title: "嘉義 某醫院靈異事件", url: "post2.html" },
-      { id: "post3", title: "台北 校園傳說", url: "post3.html" }
-    ];
-
-    async function loadRanking() {
-      let results = [];
-      for (let post of posts) {
-        let res = await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${post.id}_${todayKey}`)
-          .then(r => r.json()).catch(() => null);
-        results.push({
-          title: post.title,
-          url: post.url,
-          count: res && res.value ? res.value : 0
-        });
-      }
-      results.sort((a, b) => b.count - a.count);
-      const top3 = results.slice(0, 3);
-      const list = document.getElementById("ranking");
-      list.innerHTML = "";
-      top3.forEach(p => {
-        let li = document.createElement("li");
-        li.innerHTML = `<a href="${p.url}">${p.title}</a> - ${p.count} 次觀看`;
-        list.appendChild(li);
-      });
-    }
-    loadRanking();
-  </script>
-</body>
-</html>
+  loadPosts();
+</script>
