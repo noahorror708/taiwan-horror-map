@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
+      font-family: Arial, sans-serif;
       background: #111;
       color: #eee;
       text-align: center;
@@ -17,118 +16,80 @@
       padding: 1rem;
     }
     h1 {
-      margin: 0;
       color: #ff4444;
+      margin: 0;
     }
     #map {
-      width: 100%;
       height: 500px;
-      position: relative;
+      width: 100%;
     }
-    .articles {
-      max-width: 800px;
-      margin: 2rem auto;
-      text-align: left;
-      padding: 1rem;
+    #counters {
+      margin: 20px;
+      font-size: 1.2rem;
     }
-    article {
-      background: #1c1c1c;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
-    }
-    article h2 {
-      color: #ff6666;
-    }
-    /* 地圖上的切換按鈕 */
-    .map-toggle-btn {
-      position: absolute;
-      bottom: 15px;
-      right: 15px;
+    a.button {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
       background: #ff4444;
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-      z-index: 999;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
     }
-    .map-toggle-btn:hover {
-      background: #ff6666;
+    a.button:hover {
+      background: #cc0000;
     }
   </style>
 </head>
 <body>
   <header>
     <h1>台灣恐怖地圖</h1>
-    <p>收集台灣各地的恐怖傳說</p>
+    <p>收集台灣各地的都市傳說與恐怖故事</p>
+    <a href="submit.html" class="button">我要投稿</a>
   </header>
 
-  <!-- 地圖 -->
-  <div id="map">
-    <button id="toggleBtn" class="map-toggle-btn" onclick="toggleMapStyle()">目前：黑暗版</button>
+  <!-- 地圖區塊 -->
+  <div id="map"></div>
+
+  <!-- 計數器 -->
+  <div id="counters">
+    <p>👥 累積訪客：<span id="totalCount">載入中…</span></p>
+    <p>📅 今日訪客：<span id="todayCount">載入中…</span></p>
   </div>
 
-  <!-- 文章範例 -->
-  <section class="articles">
-    <article>
-      <h2>基隆鬼屋</h2>
-      <p>基隆有一間廢棄的鬼屋，傳聞夜晚時會出現白影，吸引許多靈異探險者前往。</p>
-    </article>
-    <article>
-      <h2>台中鬼學校</h2>
-      <p>某間廢棄學校，學生在晚上經過時聽到鋼琴聲與腳步聲。</p>
-    </article>
-  </section>
-
+  <!-- Google Maps API -->
   <script>
     let map;
-    let darkMode = true; // 預設黑暗版
-
-    const darkStyle = [
-      { elementType: "geometry", stylers: [{ color: "#1d1d1d" }] },
-      { elementType: "labels.text.fill", stylers: [{ color: "#ffffff" }] },
-      { elementType: "labels.text.stroke", stylers: [{ color: "#000000" }] },
-      { featureType: "water", elementType: "geometry", stylers: [{ color: "#222222" }] }
-    ];
-
     function initMap() {
-      const taiwan = { lat: 23.6978, lng: 120.9605 };
       map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 23.6978, lng: 120.9605 },
         zoom: 7,
-        center: taiwan,
-        styles: darkStyle // 預設黑暗模式
+        mapTypeId: "roadmap"
       });
-
-      // 範例標記
-      new google.maps.Marker({
-        position: { lat: 25.1317, lng: 121.7392 }, // 基隆
-        map,
-        title: "基隆鬼屋"
-      });
-      new google.maps.Marker({
-        position: { lat: 24.1477, lng: 120.6736 }, // 台中
-        map,
-        title: "台中鬼學校"
-      });
-    }
-
-    // 切換地圖樣式
-    function toggleMapStyle() {
-      darkMode = !darkMode;
-      map.setOptions({
-        styles: darkMode ? darkStyle : null
-      });
-      document.getElementById("toggleBtn").innerText = "目前：" + (darkMode ? "黑暗版" : "一般版");
     }
   </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap"></script>
 
-  <!-- ✅ 使用你的 API Key -->
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
+  <!-- 訪客計數器 -->
+  <script>
+    const NAMESPACE = "taiwan-horror-map";
+    function getTodayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}${d.getMonth()+1}${d.getDate()}`;
+    }
+    // 累積訪客
+    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/total`)
+      .then(res => res.json())
+      .then(res => {
+        document.getElementById("totalCount").innerText = res.value;
+      });
+    // 今日訪客
+    const todayKey = getTodayKey();
+    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${todayKey}`)
+      .then(res => res.json())
+      .then(res => {
+        document.getElementById("todayCount").innerText = res.value;
+      });
   </script>
 </body>
 </html>
