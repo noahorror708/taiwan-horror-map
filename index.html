@@ -6,9 +6,32 @@
   <style>
     body { font-family: Arial, sans-serif; background:#111; color:#eee; text-align:center; }
     #map { height: 400px; width: 100%; margin:20px 0; }
-    #counters, #topPosts { margin:20px auto; padding:20px; max-width:600px; background:#222; border-radius:12px; }
+    #counters, #topPosts, #submit { margin:20px auto; padding:20px; max-width:800px; background:#222; border-radius:12px; }
     h1,h2 { color:#ff4444; }
     a { color:#66ccff; text-decoration:none; }
+
+    /* 回到頂部按鈕 */
+    #backToTop {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #ff4444;
+      color: #fff;
+      font-size: 24px;
+      border: none;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      transition: opacity 0.3s;
+    }
+    #backToTop:hover {
+      background: #cc0000;
+    }
   </style>
 </head>
 <body>
@@ -26,9 +49,20 @@
     <p>累積人數：<span id="totalCount">0</span></p>
   </div>
 
+  <!-- 投稿表單 -->
+  <div id="submit">
+    <h2>✍️ 我要投稿</h2>
+    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfjcVl8UNRbgyU79tXhYdE5EgS8n8NagMCYXAvjrXolF2E1mw/viewform?embedded=true"
+            width="100%" height="900" frameborder="0" marginheight="0" marginwidth="0">載入中…</iframe>
+  </div>
+
   <p>
-    <a href="submit.html">我要投稿</a>
+    <a href="post1.html">閱讀文章 1</a> | 
+    <a href="post2.html">閱讀文章 2</a>
   </p>
+
+  <!-- 回到頂部按鈕 -->
+  <button id="backToTop">↑</button>
 
   <!-- Google Maps -->
   <script>
@@ -45,72 +79,45 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
   </script>
 
-  <!-- 訪客計數 -->
+  <!-- CountAPI 訪客計數 + 熱門文章 -->
   <script>
     const NAMESPACE = "taiwan-horror-map";
     const today = new Date();
     const todayKey = `${today.getFullYear()}${today.getMonth()+1}${today.getDate()}`;
 
-    // 累積人數
+    // 累積
     fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/totalVisitors`)
       .then(r => r.json())
       .then(d => document.getElementById("totalCount").innerText = d.value);
 
-    // 今日人數
+    // 今日
     fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/visitors_${todayKey}`)
       .then(r => r.json())
       .then(d => document.getElementById("todayCount").innerText = d.value);
-  </script>
 
-  <!-- 今日熱門文章 TOP 3 -->
-  <script>
+    // 動態載入文章清單 (從 posts.json)
     async function loadRanking() {
-      const list = document.getElementById("ranking");
-      let cacheKey = "ranking_" + todayKey;
-
-      // 快取資料先顯示
-      let cache = localStorage.getItem(cacheKey);
-      if (cache) {
-        try {
-          let top3 = JSON.parse(cache);
-          renderRanking(top3, list);
-        } catch(e) {}
+      let posts = [];
+      try {
+        const res = await fetch("posts.json");
+        posts = await res.json();
+      } catch(e) {
+        console.error("讀取 posts.json 失敗", e);
       }
 
-      // 從 posts.json 抓文章清單
-      let posts = await fetch("posts.json").then(r => r.json());
-
-      // 並行請求觀看數
-      let results = await Promise.allSettled(
-        posts.map(post =>
-          fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${post.id}_${todayKey}`)
-            .then(r => r.json())
-            .then(d => ({
-              title: post.title,
-              url: post.url,
-              count: d.value || 0
-            }))
-            .catch(() => ({
-              title: post.title,
-              url: post.url,
-              count: 0
-            }))
-        )
-      );
-
-      // 整理結果
-      let data = results.map(r => r.value);
-      data.sort((a, b) => b.count - a.count);
-      let top3 = data.slice(0, 3);
-
-      // 更新畫面
-      renderRanking(top3, list);
-
-      // 存到快取
-      localStorage.setItem(cacheKey, JSON.stringify(top3));
-    }
-
-    function renderRanking(top3, list) {
+      let results = [];
+      for (let post of posts) {
+        let res = await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${post.id}_${todayKey}`)
+          .then(r => r.json()).catch(() => null);
+        results.push({
+          title: post.title,
+          url: post.url,
+          count: res && res.value ? res.value : 0
+        });
+      }
+      results.sort((a, b) => b.count - a.count);
+      const top3 = results.slice(0, 3);
+      const list = document.getElementById("ranking");
       list.innerHTML = "";
       top3.forEach(p => {
         let li = document.createElement("li");
@@ -118,8 +125,20 @@
         list.appendChild(li);
       });
     }
-
     loadRanking();
+
+    // 回到頂部按鈕控制
+    const backToTop = document.getElementById("backToTop");
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 200) {
+        backToTop.style.display = "flex";
+      } else {
+        backToTop.style.display = "none";
+      }
+    });
+    backToTop.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   </script>
 </body>
 </html>
