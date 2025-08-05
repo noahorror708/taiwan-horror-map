@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>我要投稿</title>
+  <style>
+    body { font-family: Arial; background:#111; color:#eee; padding:20px; }
+    form { max-width:500px; margin:auto; display:flex; flex-direction:column; gap:10px; }
+    input, textarea { padding:8px; border-radius:6px; border:none; }
+    button { padding:10px; background:#ff4444; color:white; border:none; border-radius:8px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h1>我要投稿</h1>
+  <form action="mailto:noahorror708@gmail.com" method="post" enctype="text/plain">
+    <label>文章標題：</label>
+    <input type="text" name="title" required>
+
+    <label>地點：</label>
+    <input type="text" name="location" required>
+
+    <label>內容：</label>
+    <textarea name="content" rows="6" required></textarea>
+
+    <button type="submit">送出投稿</button>
+  </form>
+  <p><a href="index.html">⬅ 回首頁</a></p>
+</body>
+</html>
