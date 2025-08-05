@@ -1,27 +1,125 @@
-<div id="latestPosts">
-  <h2>🆕 最新文章</h2>
-  <ul id="latestList"><li>載入中…</li></ul>
-</div>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>台灣恐怖地圖</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#111; color:#eee; text-align:center; }
+    #map { height: 400px; width: 100%; margin:20px 0; }
+    #counters, #topPosts { margin:20px auto; padding:20px; max-width:600px; background:#222; border-radius:12px; }
+    h1,h2 { color:#ff4444; }
+    a { color:#66ccff; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <h1>台灣恐怖地圖</h1>
+  <div id="map"></div>
 
-<script>
-  async function loadLatest(posts) {
-    // 取最後 3 篇
-    const latest = posts.slice(-3).reverse(); 
-    const list = document.getElementById("latestList");
-    list.innerHTML = "";
-    latest.forEach(p => {
-      let li = document.createElement("li");
-      li.innerHTML = `<a href="${p.url}">${p.title}</a>`;
-      list.appendChild(li);
-    });
-  }
+  <div id="topPosts">
+    <h2>🔥 今日最熱門文章 TOP 3</h2>
+    <ol id="ranking"><li>載入中…</li></ol>
+  </div>
 
-  async function loadPosts() {
-    let res = await fetch("posts.json");
-    let posts = await res.json();
-    loadRanking(posts);   // 排行榜
-    loadLatest(posts);    // 最新文章
-  }
+  <div id="counters">
+    <h2>📊 訪客統計</h2>
+    <p>今日人數：<span id="todayCount">0</span></p>
+    <p>累積人數：<span id="totalCount">0</span></p>
+  </div>
 
-  loadPosts();
-</script>
+  <p>
+    <a href="submit.html">我要投稿</a>
+  </p>
+
+  <!-- Google Maps -->
+  <script>
+    function initMap() {
+      const taiwan = { lat: 23.6978, lng: 120.9605 };
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 7,
+        center: taiwan,
+      });
+      new google.maps.Marker({ position: taiwan, map: map });
+    }
+  </script>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
+  </script>
+
+  <!-- 訪客計數 -->
+  <script>
+    const NAMESPACE = "taiwan-horror-map";
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}${today.getMonth()+1}${today.getDate()}`;
+
+    // 累積人數
+    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/totalVisitors`)
+      .then(r => r.json())
+      .then(d => document.getElementById("totalCount").innerText = d.value);
+
+    // 今日人數
+    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/visitors_${todayKey}`)
+      .then(r => r.json())
+      .then(d => document.getElementById("todayCount").innerText = d.value);
+  </script>
+
+  <!-- 今日熱門文章 TOP 3 -->
+  <script>
+    async function loadRanking() {
+      const list = document.getElementById("ranking");
+      let cacheKey = "ranking_" + todayKey;
+
+      // 快取資料先顯示
+      let cache = localStorage.getItem(cacheKey);
+      if (cache) {
+        try {
+          let top3 = JSON.parse(cache);
+          renderRanking(top3, list);
+        } catch(e) {}
+      }
+
+      // 從 posts.json 抓文章清單
+      let posts = await fetch("posts.json").then(r => r.json());
+
+      // 並行請求觀看數
+      let results = await Promise.allSettled(
+        posts.map(post =>
+          fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${post.id}_${todayKey}`)
+            .then(r => r.json())
+            .then(d => ({
+              title: post.title,
+              url: post.url,
+              count: d.value || 0
+            }))
+            .catch(() => ({
+              title: post.title,
+              url: post.url,
+              count: 0
+            }))
+        )
+      );
+
+      // 整理結果
+      let data = results.map(r => r.value);
+      data.sort((a, b) => b.count - a.count);
+      let top3 = data.slice(0, 3);
+
+      // 更新畫面
+      renderRanking(top3, list);
+
+      // 存到快取
+      localStorage.setItem(cacheKey, JSON.stringify(top3));
+    }
+
+    function renderRanking(top3, list) {
+      list.innerHTML = "";
+      top3.forEach(p => {
+        let li = document.createElement("li");
+        li.innerHTML = `<a href="${p.url}">${p.title}</a> - ${p.count} 次觀看`;
+        list.appendChild(li);
+      });
+    }
+
+    loadRanking();
+  </script>
+</body>
+</html>
