@@ -1,0 +1,13 @@
+[
+  {
+    "id": "post1",
+    "title": "台中 XX 鬼屋",
+    "url": "post1.html"
+  },
+  {
+    "id": "post2",
+    "title": "嘉義 某醫院靈異事件",
+    "url": "post2.html"
+  }
+  ...
+]
