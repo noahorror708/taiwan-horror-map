@@ -2,28 +2,89 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>我要投稿</title>
+  <title>我要投稿 - 台灣恐怖地圖</title>
   <style>
-    body { font-family: Arial; background:#111; color:#eee; padding:20px; }
-    form { max-width:500px; margin:auto; display:flex; flex-direction:column; gap:10px; }
-    input, textarea { padding:8px; border-radius:6px; border:none; }
-    button { padding:10px; background:#ff4444; color:white; border:none; border-radius:8px; cursor:pointer; }
+    body { font-family: Arial, sans-serif; background:#111; color:#eee; text-align:center; }
+    form { max-width:600px; margin:20px auto; padding:20px; background:#222; border-radius:12px; text-align:left; }
+    label { display:block; margin-top:15px; }
+    input, textarea, select { width:100%; padding:8px; border-radius:6px; border:none; margin-top:5px; }
+    button { margin-top:20px; padding:10px 20px; background:#ff4444; color:#fff; border:none; border-radius:8px; cursor:pointer; }
+    button:hover { background:#cc0000; }
   </style>
 </head>
 <body>
   <h1>我要投稿</h1>
-  <form action="mailto:noahorror708@gmail.com" method="post" enctype="text/plain">
-    <label>文章標題：</label>
-    <input type="text" name="title" required>
-
-    <label>地點：</label>
-    <input type="text" name="location" required>
-
-    <label>內容：</label>
-    <textarea name="content" rows="6" required></textarea>
-
+  <form id="postForm">
+    <label>文章標題
+      <input type="text" id="title" required>
+    </label>
+    <label>故事內文
+      <textarea id="content" rows="6" required></textarea>
+    </label>
+    <label>地點名稱
+      <input type="text" id="place" required>
+    </label>
+    <label>地點座標（選填）
+      <input type="text" id="coords" placeholder="格式：25.03,121.56">
+    </label>
+    <label>投稿者暱稱
+      <input type="text" id="author" required>
+    </label>
+    <label>聯絡方式（選填）
+      <input type="text" id="contact">
+    </label>
     <button type="submit">送出投稿</button>
   </form>
-  <p><a href="index.html">⬅ 回首頁</a></p>
+
+  <p id="status"></p>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // 載入 Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // 你的 Firebase 設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
+      authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
+      projectId: "taiwan-horror-map-e257d",
+      storageBucket: "taiwan-horror-map-e257d.firebasestorage.app",
+      messagingSenderId: "59145752144",
+      appId: "1:59145752144:web:1f6ccc6fecd280defc8b55",
+      measurementId: "G-FR1FZD064W"
+    };
+
+    // 初始化 Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 表單提交
+    document.getElementById("postForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("title").value;
+      const content = document.getElementById("content").value;
+      const place = document.getElementById("place").value;
+      const coords = document.getElementById("coords").value;
+      const author = document.getElementById("author").value;
+      const contact = document.getElementById("contact").value;
+
+      try {
+        await addDoc(collection(db, "posts"), {
+          title: title,
+          content: content,
+          place: place,
+          coords: coords,
+          author: author,
+          contact: contact,
+          createdAt: serverTimestamp()
+        });
+        document.getElementById("status").innerText = "✅ 投稿成功！感謝你的分享";
+        document.getElementById("postForm").reset();
+      } catch (err) {
+        document.getElementById("status").innerText = "❌ 投稿失敗：" + err.message;
+      }
+    });
+  </script>
 </body>
 </html>
