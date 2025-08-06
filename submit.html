@@ -5,84 +5,64 @@
   <title>我要投稿 - 台灣恐怖地圖</title>
   <style>
     body { font-family: Arial, sans-serif; background:#111; color:#eee; text-align:center; }
-    form { max-width:600px; margin:20px auto; padding:20px; background:#222; border-radius:12px; text-align:left; }
-    label { display:block; margin-top:15px; }
-    input, textarea, select { width:100%; padding:8px; border-radius:6px; border:none; margin-top:5px; }
-    button { margin-top:20px; padding:10px 20px; background:#ff4444; color:#fff; border:none; border-radius:8px; cursor:pointer; }
+    form { max-width:600px; margin:40px auto; padding:20px; background:#222; border-radius:10px; }
+    input, textarea { width:100%; margin:8px 0; padding:8px; border-radius:6px; border:none; }
+    button { padding:10px 20px; background:#ff4444; color:#fff; border:none; border-radius:8px; cursor:pointer; }
     button:hover { background:#cc0000; }
   </style>
 </head>
 <body>
   <h1>我要投稿</h1>
   <form id="postForm">
-    <label>文章標題
-      <input type="text" id="title" required>
-    </label>
-    <label>故事內文
-      <textarea id="content" rows="6" required></textarea>
-    </label>
-    <label>地點名稱
-      <input type="text" id="place" required>
-    </label>
-    <label>地點座標（選填）
-      <input type="text" id="coords" placeholder="格式：25.03,121.56">
-    </label>
-    <label>投稿者暱稱
-      <input type="text" id="author" required>
-    </label>
-    <label>聯絡方式（選填）
-      <input type="text" id="contact">
-    </label>
+    <input type="email" id="email" placeholder="您的電子郵件" required>
+    <input type="text" id="locationName" placeholder="發生地點 (例：台北市中山區某大樓)" required>
+    <input type="text" id="title" placeholder="文章標題" required>
+    <textarea id="content" rows="6" placeholder="故事內文" required></textarea>
+    <input type="text" id="coords" placeholder="地點座標（例：25.0478,121.5319）">
+    <input type="text" id="author" placeholder="投稿者暱稱" required>
+    <input type="text" id="contact" placeholder="聯絡方式（信箱或社群帳號）" required>
     <button type="submit">送出投稿</button>
   </form>
 
-  <p id="status"></p>
-
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script type="module">
-    // 載入 Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 你的 Firebase 設定
+    // 🔧 改成你的 Firebase 專案設定
     const firebaseConfig = {
-      apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
-      authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
-      projectId: "taiwan-horror-map-e257d",
-      storageBucket: "taiwan-horror-map-e257d.firebasestorage.app",
-      messagingSenderId: "59145752144",
-      appId: "1:59145752144:web:1f6ccc6fecd280defc8b55",
-      measurementId: "G-FR1FZD064W"
+  apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
+  authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
+  projectId: "taiwan-horror-map-e257d",
+  storageBucket: "taiwan-horror-map-e257d.firebasestorage.app",
+  messagingSenderId: "59145752144",
+  appId: "1:59145752144:web:1f6ccc6fecd280defc8b55",
+  measurementId: "G-FR1FZD064W"
     };
 
-    // 初始化 Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 表單提交
     document.getElementById("postForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const title = document.getElementById("title").value;
-      const content = document.getElementById("content").value;
-      const place = document.getElementById("place").value;
-      const coords = document.getElementById("coords").value;
-      const author = document.getElementById("author").value;
-      const contact = document.getElementById("contact").value;
 
       try {
         await addDoc(collection(db, "posts"), {
-          title: title,
-          content: content,
-          place: place,
-          coords: coords,
-          author: author,
-          contact: contact,
+          email: document.getElementById("email").value,
+          title: document.getElementById("title").value,
+          content: document.getElementById("content").value,
+          locationName: document.getElementById("locationName").value,
+          coords: document.getElementById("coords").value,
+          author: document.getElementById("author").value,
+          contact: document.getElementById("contact").value,
           createdAt: serverTimestamp()
         });
-        document.getElementById("status").innerText = "✅ 投稿成功！感謝你的分享";
+
+        alert("✅ 投稿成功！感謝您的分享");
         document.getElementById("postForm").reset();
       } catch (err) {
-        document.getElementById("status").innerText = "❌ 投稿失敗：" + err.message;
+        console.error(err);
+        alert("❌ 投稿失敗，請稍後再試");
       }
     });
   </script>
