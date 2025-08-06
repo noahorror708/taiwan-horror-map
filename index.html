@@ -1,108 +1,32 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
   <style>
-    body {
-      margin:0;
-      font-family: Arial, sans-serif;
-      background:#111;
-      color:#eee;
-    }
-    h1 {
-      text-align:center;
-      padding:15px;
-      background:#222;
-      color:#ff4444;
-      margin:0;
-    }
-    #subtitle {
-      text-align:center;
-      padding:5px;
-      background:#1a1a1a;
-      color:#ccc;
-      font-size:14px;
-    }
-    #map {
-      height:50vh;   /* 只佔上半 */
-      width:100%;
-    }
-    #contentArea {
-      display:flex;
-      height:50vh;   /* 下半 */
-    }
+    body { margin:0; font-family: Arial, sans-serif; background:#111; color:#eee; }
+    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; }
+    #container { display:flex; height:calc(100vh - 60px); }
     #sidebar {
-      width:250px;
-      background:#222;
-      overflow-y:auto;
-      padding:10px;
+      width:250px; background:#222; overflow-y:auto; padding:10px;
     }
-    #sidebar h2 {
-      margin-top:0;
-      color:#66ccff;
-    }
-    #sidebar input {
-      width:90%;
-      padding:5px;
-      margin-bottom:10px;
-      border:none;
-      border-radius:4px;
-    }
-    #sidebar ul {
-      list-style:none;
-      padding:0;
-    }
-    #sidebar li {
-      margin:5px 0;
-    }
-    #sidebar a {
-      color:#eee;
-      text-decoration:none;
-      display:block;
-      padding:5px;
-      border-radius:6px;
-    }
-    #sidebar a:hover {
-      background:#333;
-    }
-    #articleList {
-      flex:1;
-      background:#111;
-      padding:15px;
-      overflow-y:auto;
-    }
-    footer {
-      background:#222;
-      text-align:center;
-      padding:15px;
-      font-size:13px;
-      color:#aaa;
-    }
+    #sidebar h3 { margin:10px 0; color:#66ccff; }
+    #sidebar ul { list-style:none; padding:0; }
+    #sidebar li { margin:5px 0; }
+    #sidebar a { color:#eee; text-decoration:none; display:block; padding:5px; border-radius:6px; }
+    #sidebar a:hover { background:#333; }
+    #map { flex:1; }
   </style>
 </head>
 <body>
   <h1>台灣恐怖地圖</h1>
-  <div id="subtitle">收錄台灣各地靈異故事、都市傳說與詭譚事件</div>
-
-  <div id="map"></div>
-
-  <div id="contentArea">
+  <div id="container">
     <div id="sidebar">
-      <h2>依地區分類</h2>
-      <input type="text" id="searchBox" placeholder="🔍 搜尋文章...">
-      <div id="regions">載入中...</div>
+      <p>📖 文章清單載入中...</p>
     </div>
-    <div id="articleList">
-      <h2>文章顯示區</h2>
-      <div id="articleContent">請從左邊選擇文章</div>
-    </div>
+    <div id="map"></div>
   </div>
-
-  <footer>
-    📩 聯絡信箱：noahorror708@gmail.com <br>
-    ⚠️ 免責聲明：本站故事僅供娛樂參考，不代表真實事件。
-  </footer>
 
   <!-- Google Maps -->
   <script>
@@ -116,7 +40,7 @@
     }
   </script>
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=你的GoogleMapsAPIKEY&callback=initMap">
   </script>
 
   <!-- Firebase -->
@@ -124,36 +48,39 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Firebase 設定
+    // ✅ 換成你的 Firebase config
     const firebaseConfig = {
-      apiKey:AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM,
-      authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
-      projectId: "taiwan-horror-map-e257d",
-      storageBucket: "taiwan-horror-map-e257d.appspot.com",
-      messagingSenderId: "59145752144",
-      appId: "1:59145752144:web:1f6ccc6fecd280defc8b55",
+  apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
+  authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
+  projectId: "taiwan-horror-map-e257d",
+  storageBucket: "taiwan-horror-map-e257d.firebasestorage.app",
+  messagingSenderId: "59145752144",
+  appId: "1:59145752144:web:1f6ccc6fecd280defc8b55",
+  measurementId: "G-FR1FZD064W"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 抓文章
+    // 把 Firestore 文章抓出來
     async function loadPosts() {
       const querySnapshot = await getDocs(collection(db, "posts"));
       let groups = {};
+
       querySnapshot.forEach((doc) => {
         let data = doc.data();
         let region = data.region || "未分類";
         if (!groups[region]) groups[region] = [];
         groups[region].push({ id: doc.id, ...data });
       });
+
       renderSidebar(groups);
     }
 
-    // 左側分類 + 搜尋
+    // 左邊文章列表
     function renderSidebar(groups) {
-      const sidebar = document.getElementById("regions");
-      sidebar.innerHTML = "";
+      const sidebar = document.getElementById("sidebar");
+      sidebar.innerHTML = "<h2>📍 依地區分類</h2>";
       for (let region in groups) {
         let h3 = document.createElement("h3");
         h3.innerText = region;
@@ -165,36 +92,21 @@
           let a = document.createElement("a");
           a.innerText = post.title;
           a.href = "#";
-          a.onclick = () => showArticle(post);
+          a.onclick = () => {
+            if (post.coords) {
+              let [lat, lng] = post.coords.split(",").map(Number);
+              let pos = { lat, lng };
+              map.setCenter(pos);
+              map.setZoom(14);
+              new google.maps.Marker({ position: pos, map: map, title: post.title });
+            } else {
+              alert("此文章沒有座標");
+            }
+          };
           li.appendChild(a);
           ul.appendChild(li);
         });
         sidebar.appendChild(ul);
-      }
-
-      // 搜尋功能
-      document.getElementById("searchBox").addEventListener("input", (e) => {
-        let keyword = e.target.value.toLowerCase();
-        document.querySelectorAll("#regions a").forEach(a => {
-          a.style.display = a.innerText.toLowerCase().includes(keyword) ? "block" : "none";
-        });
-      });
-    }
-
-    // 顯示文章
-    function showArticle(post) {
-      const area = document.getElementById("articleContent");
-      area.innerHTML = `
-        <h3>${post.title}</h3>
-        <p><b>地點：</b>${post.locationName}</p>
-        <p>${post.content}</p>
-      `;
-      if (post.coordinates) {
-        let [lat, lng] = post.coordinates.split(",").map(Number);
-        let pos = { lat, lng };
-        map.setCenter(pos);
-        map.setZoom(15);
-        new google.maps.Marker({ position: pos, map: map, title: post.title });
       }
     }
 
