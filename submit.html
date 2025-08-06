@@ -4,67 +4,109 @@
   <meta charset="UTF-8">
   <title>我要投稿 - 台灣恐怖地圖</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#111; color:#eee; text-align:center; }
-    form { max-width:600px; margin:40px auto; padding:20px; background:#222; border-radius:10px; }
-    input, textarea { width:100%; margin:8px 0; padding:8px; border-radius:6px; border:none; }
-    button { padding:10px 20px; background:#ff4444; color:#fff; border:none; border-radius:8px; cursor:pointer; }
-    button:hover { background:#cc0000; }
+    body { font-family: Arial, sans-serif; background:#111; color:#eee; margin:0; }
+    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; }
+    h2 { text-align:center; color:#66ccff; margin-top:10px; font-weight:normal; }
+
+    #formContainer { 
+      max-width: 900px; 
+      margin: 20px auto; 
+      background:#222; 
+      padding:20px; 
+      border-radius:12px; 
+      box-shadow:0 0 10px rgba(0,0,0,0.5);
+    }
+
+    iframe { width:100%; height:700px; border:none; border-radius:8px; }
+
+    footer { 
+      margin-top:30px; 
+      padding:20px; 
+      background:#222; 
+      text-align:center; 
+      font-size:14px; 
+      color:#bbb; 
+    }
+
+    /* 回到頂端按鈕 */
+    #backToTop {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ff4444;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:0 4px 8px rgba(0,0,0,0.4);
+    }
+    #backToTop img {
+      width: 24px;
+      height: 24px;
+    }
   </style>
 </head>
 <body>
-  <h1>我要投稿</h1>
-  <form id="postForm">
-    <input type="email" id="email" placeholder="您的電子郵件" required>
-    <input type="text" id="locationName" placeholder="發生地點 (例：台北市中山區某大樓)" required>
-    <input type="text" id="title" placeholder="文章標題" required>
-    <textarea id="content" rows="6" placeholder="故事內文" required></textarea>
-    <input type="text" id="coords" placeholder="地點座標（例：25.0478,121.5319）">
-    <input type="text" id="author" placeholder="投稿者暱稱" required>
-    <input type="text" id="contact" placeholder="聯絡方式（信箱或社群帳號）" required>
-    <button type="submit">送出投稿</button>
-  </form>
+  <h1>台灣恐怖地圖</h1>
+  <h2>我要投稿 - 分享你的故事</h2>
 
-  <!-- Firebase -->
+  <div id="formContainer">
+    <!-- https://forms.gle/6YLTnDS8nPDyFPrdA -->
+    <iframe src="https://forms.gle/6YLTnDS8nPDyFPrdA" frameborder="0" marginheight="0" marginwidth="0">載入中…</iframe>
+  </div>
+
+  <!-- 回到頂端 -->
+  <button id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'});">
+    <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="回到頂端">
+  </button>
+
+  <!-- 頁尾 -->
+  <footer>
+    聯絡信箱：noah@example.com ｜ 本網站僅提供故事分享，內容不代表真實事件。<br>
+    🆕 今日新增 <span id="todayCount">0</span> 篇 ｜ 📊 累計 <span id="totalCount">0</span> 篇
+    <br>© 2025 台灣恐怖地圖 All Rights Reserved.
+  </footer>
+
+  <!-- Firebase Firestore -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 🔧 改成你的 Firebase 專案設定
+    // Firebase 設定
     const firebaseConfig = {
-  apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
-  authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
-  projectId: "taiwan-horror-map-e257d",
-  storageBucket: "taiwan-horror-map-e257d.firebasestorage.app",
-  messagingSenderId: "59145752144",
-  appId: "1:59145752144:web:1f6ccc6fecd280defc8b55",
-  measurementId: "G-FR1FZD064W"
+      apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
+      authDomain: "taiwan-horror-map.firebaseapp.com",
+      projectId: "taiwan-horror-map"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    document.getElementById("postForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+    // 更新文章數量
+    async function updatePostStats() {
+      const snap = await getDocs(collection(db, "posts"));
+      document.getElementById("totalCount").innerText = snap.size;
 
-      try {
-        await addDoc(collection(db, "posts"), {
-          email: document.getElementById("email").value,
-          title: document.getElementById("title").value,
-          content: document.getElementById("content").value,
-          locationName: document.getElementById("locationName").value,
-          coords: document.getElementById("coords").value,
-          author: document.getElementById("author").value,
-          contact: document.getElementById("contact").value,
-          createdAt: serverTimestamp()
-        });
+      // 今日
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const todayISO = today.toISOString();
 
-        alert("✅ 投稿成功！感謝您的分享");
-        document.getElementById("postForm").reset();
-      } catch (err) {
-        console.error(err);
-        alert("❌ 投稿失敗，請稍後再試");
-      }
-    });
+      let todayCount = 0;
+      snap.forEach(doc => {
+        const data = doc.data();
+        if (data.createdAt && new Date(data.createdAt).toISOString() >= todayISO) {
+          todayCount++;
+        }
+      });
+      document.getElementById("todayCount").innerText = todayCount;
+    }
+
+    updatePostStats();
   </script>
 </body>
 </html>
