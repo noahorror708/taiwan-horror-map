@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -7,7 +6,9 @@
   <style>
     body { margin:0; font-family: Arial, sans-serif; background:#111; color:#eee; }
     h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; }
-    #container { display:flex; height:calc(100vh - 60px); }
+    h2 { text-align:center; margin:5px 0 15px; font-weight:normal; color:#aaa; }
+
+    #container { display:flex; height:60vh; }
     #sidebar {
       width:250px; background:#222; overflow-y:auto; padding:10px;
     }
@@ -16,17 +17,67 @@
     #sidebar li { margin:5px 0; }
     #sidebar a { color:#eee; text-decoration:none; display:block; padding:5px; border-radius:6px; }
     #sidebar a:hover { background:#333; }
+
     #map { flex:1; }
+
+    #searchBox { width:100%; padding:6px; margin:8px 0; border:none; border-radius:6px; }
+
+    #postArea { padding:20px; max-width:900px; margin:auto; }
+    .postCard { background:#222; margin-bottom:15px; padding:15px; border-radius:10px; }
+    .postCard h3 { margin-top:0; color:#ff6666; }
+
+    footer { margin-top:30px; padding:20px; background:#222; text-align:center; font-size:14px; color:#bbb; }
+
+    #backToTop {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ff4444;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:0 4px 8px rgba(0,0,0,0.4);
+    }
+    #backToTop img { width:24px; height:24px; }
   </style>
 </head>
 <body>
   <h1>台灣恐怖地圖</h1>
+  <h2>蒐集台灣各地流傳的靈異故事與都市傳說</h2>
+
   <div id="container">
+    <!-- 抽屜 -->
     <div id="sidebar">
+      <input type="text" id="searchBox" placeholder="搜尋文章...">
+      <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
       <p>📖 文章清單載入中...</p>
     </div>
+
+    <!-- 地圖 -->
     <div id="map"></div>
   </div>
+
+  <!-- 文章展示 -->
+  <div id="postArea">
+    <h2>最新文章</h2>
+    <div id="latestPosts"></div>
+  </div>
+
+  <!-- 回到頂端 -->
+  <button id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'});">
+    <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="回到頂端">
+  </button>
+
+  <!-- 頁尾 -->
+  <footer>
+    聯絡信箱：noah@example.com ｜ 本網站僅提供故事分享，內容不代表真實事件。<br>
+    © 2025 台灣恐怖地圖 All Rights Reserved.
+  </footer>
 
   <!-- Google Maps -->
   <script>
@@ -40,7 +91,7 @@
     }
   </script>
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=你的GoogleMapsAPIKEY&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=你的GoogleMapsAPIKey&callback=initMap">
   </script>
 
   <!-- Firebase -->
@@ -48,39 +99,39 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // ✅ 換成你的 Firebase config
     const firebaseConfig = {
-  apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
-  authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
-  projectId: "taiwan-horror-map-e257d",
-  storageBucket: "taiwan-horror-map-e257d.firebasestorage.app",
-  messagingSenderId: "59145752144",
-  appId: "1:59145752144:web:1f6ccc6fecd280defc8b55",
-  measurementId: "G-FR1FZD064W"
+      apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
+      authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
+      projectId: "taiwan-horror-map-e257d"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 把 Firestore 文章抓出來
     async function loadPosts() {
-      const querySnapshot = await getDocs(collection(db, "posts"));
+      const snap = await getDocs(collection(db, "posts"));
       let groups = {};
+      let allPosts = [];
 
-      querySnapshot.forEach((doc) => {
-        let data = doc.data();
-        let region = data.region || "未分類";
+      snap.forEach(doc => {
+        const data = doc.data();
+        let region = data.locationName || "未分類";
         if (!groups[region]) groups[region] = [];
         groups[region].push({ id: doc.id, ...data });
+        allPosts.push({ id: doc.id, ...data });
       });
 
       renderSidebar(groups);
+      renderLatest(allPosts);
     }
 
-    // 左邊文章列表
     function renderSidebar(groups) {
       const sidebar = document.getElementById("sidebar");
-      sidebar.innerHTML = "<h2>📍 依地區分類</h2>";
+      sidebar.innerHTML = `
+        <input type="text" id="searchBox" placeholder="搜尋文章...">
+        <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
+      `;
+
       for (let region in groups) {
         let h3 = document.createElement("h3");
         h3.innerText = region;
@@ -92,21 +143,50 @@
           let a = document.createElement("a");
           a.innerText = post.title;
           a.href = "#";
-          a.onclick = () => {
-            if (post.coords) {
-              let [lat, lng] = post.coords.split(",").map(Number);
-              let pos = { lat, lng };
-              map.setCenter(pos);
-              map.setZoom(14);
-              new google.maps.Marker({ position: pos, map: map, title: post.title });
-            } else {
-              alert("此文章沒有座標");
-            }
-          };
+          a.onclick = () => showPost(post);
           li.appendChild(a);
           ul.appendChild(li);
         });
         sidebar.appendChild(ul);
+      }
+
+      // 搜尋功能
+      document.getElementById("searchBox").addEventListener("input", e => {
+        const keyword = e.target.value.toLowerCase();
+        const links = sidebar.querySelectorAll("a");
+        links.forEach(link => {
+          link.style.display = link.innerText.toLowerCase().includes(keyword) ? "block" : "none";
+        });
+      });
+    }
+
+    function renderLatest(posts) {
+      posts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const latest = posts.slice(0,3);
+      const latestDiv = document.getElementById("latestPosts");
+      latestDiv.innerHTML = "";
+
+      latest.forEach(post => {
+        let card = document.createElement("div");
+        card.className = "postCard";
+        card.innerHTML = `<h3>${post.title}</h3><p>${post.content.substring(0,100)}...</p>`;
+        latestDiv.appendChild(card);
+      });
+    }
+
+    function showPost(post) {
+      const postArea = document.getElementById("postArea");
+      let detail = document.createElement("div");
+      detail.className = "postCard";
+      detail.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p><p><b>地點：</b>${post.locationName}</p>`;
+      postArea.prepend(detail);
+
+      if (post.coords) {
+        let [lat, lng] = post.coords.split(",").map(Number);
+        let pos = { lat, lng };
+        map.setCenter(pos);
+        map.setZoom(14);
+        new google.maps.Marker({ position: pos, map: map, title: post.title });
       }
     }
 
