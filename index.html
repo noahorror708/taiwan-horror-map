@@ -181,14 +181,17 @@
       detail.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p><p><b>地點：</b>${post.locationName}</p>`;
       postArea.prepend(detail);
 
-      if (post.coords) {
-        let [lat, lng] = post.coords.split(",").map(Number);
-        let pos = { lat, lng };
-        map.setCenter(pos);
-        map.setZoom(14);
-        new google.maps.Marker({ position: pos, map: map, title: post.title });
-      }
-    }
+      if (post.coordinates) {
+  let pos = {
+    lat: post.coordinates.latitude,
+    lng: post.coordinates.longitude
+  };
+  map.setCenter(pos);
+  map.setZoom(14);
+  new google.maps.Marker({ position: pos, map: map, title: post.title });
+} else {
+  alert("此文章尚未提供座標");
+}
 
     loadPosts();
   </script>
