@@ -60,7 +60,7 @@
 </head>
 <body>
   <h1 onclick="goBack()">台灣恐怖地圖</h1>
-  <h2>蒐集台灣各地流傳的靈異故事與都市傳說</h2>
+  <h2>蓋集台灣各地流傳的靈異故事與都市傳說</h2>
 
   <div id="container">
     <div id="sidebar">
@@ -75,7 +75,7 @@
   <div id="postArea">
     <!-- 清單列表 -->
     <div id="postListView">
-      <h2>最新文章</h2>
+      <h2 id="latest">最新文章</h2>
       <div id="latestPosts"></div>
     </div>
 
@@ -222,9 +222,7 @@
     }
 
     function goBack() {
-      document.getElementById("postDetailView").style.display = "none";
-      document.getElementById("postListView").style.display = "block";
-      document.getElementById("map").scrollIntoView({ behavior: 'smooth' });
+      window.location.href = "index.html#latest";
     }
 
     loadPosts();
