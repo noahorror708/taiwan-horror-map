@@ -5,7 +5,7 @@
   <title>我要投稿 - 台灣恐怖地圖</title>
   <style>
     body { font-family: Arial, sans-serif; background:#111; color:#eee; margin:0; }
-    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; }
+    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; cursor:pointer; }
     h2 { text-align:center; color:#66ccff; margin-top:10px; font-weight:normal; }
 
     #formContainer { 
@@ -28,7 +28,6 @@
       color:#bbb; 
     }
 
-    /* 回到頂端按鈕 */
     #backToTop {
       position: fixed;
       bottom: 20px;
@@ -48,22 +47,34 @@
       width: 24px;
       height: 24px;
     }
+
+    #backButton {
+      background: #444;
+      border: none;
+      color: #eee;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto 0;
+    }
   </style>
 </head>
 <body>
-  <h1>台灣恐怖地圖</h1>
+  <h1 onclick="goHome()">台灣恐怖地圖</h1>
   <h2>我要投稿 - 分享你的故事</h2>
 
   <div id="formContainer">
-    <iframe src="https://forms.gle/6YLTnDS8nPDyFPrdA" frameborder="0" marginheight="0" marginwidth="0">載入中…</iframe>
+    <iframe src="https://forms.gle/6YLTnDS8nPDyFPrdA" frameborder="0">載入中…</iframe>
   </div>
 
-  <!-- 回到頂端 -->
+  <button id="backButton" onclick="goHome()">← 回到清單</button>
+
   <button id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'});">
     <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="回到頂端">
   </button>
 
-  <!-- 頁尾 -->
   <footer>
     聯絡信箱：noahorror708@gmail.com ｜ 本網站僅提供故事分享，內容不代表真實事件。<br>
     🆕 今日新增 <span id="todayCount">0</span> 篇 ｜ 📊 累計 <span id="totalCount">0</span> 篇
@@ -90,21 +101,23 @@
 
       const today = new Date();
       today.setHours(0,0,0,0);
+      const todayISO = today.toISOString();
 
       let todayCount = 0;
       snap.forEach(doc => {
         const data = doc.data();
-        if (data.createdAt) {
-          const createdTime = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
-          if (createdTime >= today) {
-            todayCount++;
-          }
+        if (data.createdAt && new Date(data.createdAt).toISOString() >= todayISO) {
+          todayCount++;
         }
       });
       document.getElementById("todayCount").innerText = todayCount;
     }
 
     updatePostStats();
+
+    function goHome() {
+      window.location.href = "index.html";
+    }
   </script>
 </body>
 </html>
