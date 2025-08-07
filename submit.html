@@ -2,128 +2,105 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>我要投稿 - 台灣恐怖地圖</title>
+  <title>我要投稿｜台灣恐怖地圖</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#111; color:#eee; margin:0; }
-    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; cursor: pointer; }
-    h2 { text-align:center; color:#66ccff; margin-top:10px; font-weight:normal; }
+    body { margin:0; font-family:Arial, sans-serif; background:#111; color:#eee; }
+    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; cursor:pointer; }
+    h2 { text-align:center; margin:10px 0 20px; font-weight:normal; color:#aaa; }
 
-    #formContainer { 
-      max-width: 900px; 
-      margin: 20px auto; 
-      background:#222; 
-      padding:20px; 
-      border-radius:12px; 
-      box-shadow:0 0 10px rgba(0,0,0,0.5);
+    .container { max-width:600px; margin:30px auto; padding:20px; background:#222; border-radius:10px; }
+    label { display:block; margin-top:15px; color:#ccc; }
+    input, textarea { width:100%; padding:10px; border:none; border-radius:6px; margin-top:5px; background:#333; color:#eee; }
+    button {
+      margin-top:20px; background:#ff4444; color:#fff; border:none; padding:12px 18px;
+      border-radius:6px; cursor:pointer; font-size:16px; width:100%;
+    }
+    button:hover { background:#ff6666; }
+    #preview { margin-top:30px; background:#111; padding:15px; border-radius:10px; border:1px solid #444; }
+    #preview h3 { color:#ff6666; }
+    #backButton {
+      background: #444; border: none; color: #eee; padding: 8px 12px;
+      border-radius: 8px; cursor: pointer; margin: 15px;
     }
 
-    iframe { width:100%; height:700px; border:none; border-radius:8px; }
-
-    footer { 
-      margin-top:30px; 
-      padding:20px; 
-      background:#222; 
-      text-align:center; 
-      font-size:14px; 
-      color:#bbb; 
+    .breadcrumb {
+      text-align: center;
+      margin-top: 10px;
+      color: #888;
     }
-
-    #backToTop {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #ff4444;
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow:0 4px 8px rgba(0,0,0,0.4);
+    .breadcrumb a {
+      color: #66ccff;
+      text-decoration: none;
     }
-    #backToTop img {
-      width: 24px;
-      height: 24px;
-    }
-
-    #goHomeBtn {
-      display: block;
-      margin: 10px auto;
-      background: #66ccff;
-      color: #111;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    #goHomeBtn:hover {
-      background: #55bbff;
+    .breadcrumb a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <h1 onclick="goHome()">台灣恐怖地圖</h1>
-  <h2>我要投稿 - 分享你的故事</h2>
+  <h1 onclick="reloadHome()">台灣恐怖地圖</h1>
+  <h2>投稿你的靈異故事</h2>
 
-  <button id="goHomeBtn" onclick="goHome()">🏠 回首頁</button>
-
-  <div id="formContainer">
-    <iframe src="https://forms.gle/6YLTnDS8nPDyFPrdA" frameborder="0" marginheight="0" marginwidth="0">載入中…</iframe>
+  <div class="breadcrumb">
+    <a href="index.html#latest">最新文章</a> &gt; 我要投稿
   </div>
 
-  <!-- 回到頂端 -->
-  <button id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'});">
-    <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="回到頂端">
-  </button>
+  <div class="container">
+    <label for="author">你的名字（或暱稱）</label>
+    <input id="author" placeholder="例如：NOAH">
 
-  <!-- 頁尾 -->
-  <footer>
-    聯絡信箱：noahorror708@gmail.com ｜ 本網站僅提供故事分享，內容不代表真實事件。<br>
-    🆕 今日新增 <span id="todayCount">0</span> 篇 ｜ 📊 累計 <span id="totalCount">0</span> 篇
-    <br>© 2025 台灣恐怖地圖 All Rights Reserved.
-  </footer>
+    <label for="title">文章標題</label>
+    <input id="title" placeholder="例如：八里媽媽嘴雙屍命案：河畔的詭影">
 
-  <!-- Firebase Firestore -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <label for="location">地點名稱</label>
+    <input id="location" placeholder="例如：新北市八里區「媽媽嘴咖啡店」（已停業）">
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
-      authDomain: "taiwan-horror-map.firebaseapp.com",
-      projectId: "taiwan-horror-map"
-    };
+    <label for="latitude">緯度（例如：25.1545）</label>
+    <input id="latitude" type="number" step="any">
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    <label for="longitude">經度（例如：121.4581）</label>
+    <input id="longitude" type="number" step="any">
 
-    async function updatePostStats() {
-      const snap = await getDocs(collection(db, "posts"));
-      document.getElementById("totalCount").innerText = snap.size;
+    <label for="content">文章內容</label>
+    <textarea id="content" rows="6" placeholder="寫下你想分享的恐怖故事..."></textarea>
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayISO = today.toISOString();
+    <button onclick="previewPost()">預覽文章</button>
 
-      let todayCount = 0;
-      snap.forEach(doc => {
-        const data = doc.data();
-        if (data.createdAt && new Date(data.createdAt).toISOString() >= todayISO) {
-          todayCount++;
-        }
-      });
-      document.getElementById("todayCount").innerText = todayCount;
+    <div id="preview" style="display:none;">
+      <h3 id="previewTitle"></h3>
+      <p id="previewContent"></p>
+      <p><b>地點：</b><span id="previewLocation"></span></p>
+      <p><b>作者：</b><span id="previewAuthor"></span></p>
+    </div>
+  </div>
+  <button id="backButton" onclick="goBackToLatest()">← 回到最新文章</button>
+
+  <script>
+    function goBackToLatest() {
+      window.location.href = "index.html#latest";
     }
 
-    updatePostStats();
+    function reloadHome() {
+      window.location.href = "index.html";
+    }
 
-    // 回首頁功能（跳到最新文章區塊）
-    window.goHome = function () {
-      window.location.href = "index.html#latest";
-    };
+    function previewPost() {
+      const title = document.getElementById("title").value.trim();
+      const content = document.getElementById("content").value.trim();
+      const location = document.getElementById("location").value.trim();
+      const author = document.getElementById("author").value.trim();
+
+      if (!title || !content || !location || !author) {
+        alert("請填寫所有欄位");
+        return;
+      }
+
+      document.getElementById("previewTitle").innerText = title;
+      document.getElementById("previewContent").innerText = content;
+      document.getElementById("previewLocation").innerText = location;
+      document.getElementById("previewAuthor").innerText = author;
+      document.getElementById("preview").style.display = "block";
+    }
   </script>
 </body>
 </html>
