@@ -46,21 +46,22 @@
     }
     #backToTop img { width:24px; height:24px; }
 
-    #backButton {
-      background: #444;
-      border: none;
-      color: #eee;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      cursor: pointer;
+    .breadcrumb {
+      margin: 10px 0;
+      color: #888;
     }
-
+    .breadcrumb a {
+      color: #66ccff;
+      text-decoration: none;
+    }
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <h1 onclick="goBack()">台灣恐怖地圖</h1>
-  <h2>蓋集台灣各地流傳的靈異故事與都市傳說</h2>
+  <h1 onclick="location.reload()">台灣恐怖地圖</h1>
+  <h2>蒐集台灣各地流傳的靈異故事與都市傳說</h2>
 
   <div id="container">
     <div id="sidebar">
@@ -81,7 +82,9 @@
 
     <!-- 單篇文章詳細 -->
     <div id="postDetailView" style="display:none;">
-      <button id="backButton" onclick="goBack()">← 回到清單</button>
+      <div class="breadcrumb" id="postBreadcrumb">
+        <a href="#" onclick="goBack()">最新文章</a> &gt; <span id="currentPostTitle">文章標題</span>
+      </div>
       <div id="postDetailContent"></div>
     </div>
   </div>
@@ -196,6 +199,7 @@
     function showPost(post) {
       document.getElementById("postListView").style.display = "none";
       document.getElementById("postDetailView").style.display = "block";
+      document.getElementById("currentPostTitle").innerText = post.title;
 
       const detail = document.getElementById("postDetailContent");
       detail.innerHTML = `
@@ -222,7 +226,9 @@
     }
 
     function goBack() {
-      window.location.href = "index.html#latest";
+      document.getElementById("postDetailView").style.display = "none";
+      document.getElementById("postListView").style.display = "block";
+      document.getElementById("map").scrollIntoView({ behavior: 'smooth' });
     }
 
     loadPosts();
