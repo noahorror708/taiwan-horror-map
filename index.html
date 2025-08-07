@@ -44,6 +44,12 @@
       box-shadow:0 4px 8px rgba(0,0,0,0.4);
     }
     #backToTop img { width:24px; height:24px; }
+
+    /* 額外新增的 */
+    #postDetailView { display:none; padding:20px; max-width:900px; margin:auto; }
+    #postDetailView h2 { color:#ff4444; }
+    #postDetailView h4 { color:#66ccff; }
+    #postDetailView p { line-height:1.6; }
   </style>
 </head>
 <body>
@@ -51,21 +57,29 @@
   <h2>蒐集台灣各地流傳的靈異故事與都市傳說</h2>
 
   <div id="container">
-    <!-- 抽屜 -->
     <div id="sidebar">
       <input type="text" id="searchBox" placeholder="搜尋文章...">
       <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
       <p>📖 文章清單載入中...</p>
     </div>
 
-    <!-- 地圖 -->
     <div id="map"></div>
   </div>
 
-  <!-- 文章展示 -->
+  <!-- 最新文章列表區 -->
   <div id="postArea">
-    <h2>最新文章</h2>
-    <div id="latestPosts"></div>
+    <div id="postListView">
+      <h2>最新文章</h2>
+      <div id="latestPosts"></div>
+    </div>
+
+    <!-- 單篇文章詳情 -->
+    <div id="postDetailView">
+      <button onclick="goBack()">← 回到清單</button>
+      <h2 id="postTitle"></h2>
+      <h4 id="postLocation"></h4>
+      <p id="postContent"></p>
+    </div>
   </div>
 
   <!-- 回到頂端 -->
@@ -94,7 +108,7 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
   </script>
 
-    <!-- Firebase -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -170,30 +184,40 @@
         let card = document.createElement("div");
         card.className = "postCard";
         card.innerHTML = `<h3>${post.title}</h3><p>${post.content.substring(0,100)}...</p>`;
+        card.onclick = () => showPost(post);
         latestDiv.appendChild(card);
       });
     }
 
     function showPost(post) {
-      const postArea = document.getElementById("postArea");
-      let detail = document.createElement("div");
-      detail.className = "postCard";
-      detail.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p><p><b>地點：</b>${post.locationName}</p>`;
-      postArea.prepend(detail);
+      // 切換顯示區塊
+      document.getElementById("postListView").style.display = "none";
+      document.getElementById("postDetailView").style.display = "block";
 
+      // 填入文章內容
+      document.getElementById("postTitle").innerText = post.title;
+      document.getElementById("postLocation").innerText = "地點：" + (post.locationName || "未提供");
+      document.getElementById("postContent").innerText = post.content;
+
+      // 地圖移動到該點
       if (post.coordinates) {
-        let pos = {
+        const pos = {
           lat: post.coordinates.latitude,
           lng: post.coordinates.longitude
         };
         map.setCenter(pos);
         map.setZoom(14);
         new google.maps.Marker({ position: pos, map: map, title: post.title });
-      } else {
-        alert("此文章尚未提供座標");
       }
+    }
+
+    // ← 回到清單
+    function goBack() {
+      document.getElementById("postDetailView").style.display = "none";
+      document.getElementById("postListView").style.display = "block";
     }
 
     loadPosts();
   </script>
-
+</body>
+</html>
