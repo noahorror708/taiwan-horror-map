@@ -196,34 +196,37 @@
       });
     }
 
-    function showPost(post) {
-      document.getElementById("postListView").style.display = "none";
-      document.getElementById("postDetailView").style.display = "block";
-      document.getElementById("currentPostTitle").innerText = post.title;
+function showPost(post) {
+  document.getElementById("postListView").style.display = "none";
+  document.getElementById("postDetailView").style.display = "block";
 
-      const detail = document.getElementById("postDetailContent");
-      detail.innerHTML = `
-        <div class="postCard">
-          <h3>${post.title}</h3>
-          <p>${post.content}</p>
-          <p><b>地點：</b>${post.locationName}</p>
-        </div>
-      `;
+  const detail = document.getElementById("postDetailContent");
+  detail.innerHTML = `
+    <div class="breadcrumb">
+      <a href="#" onclick="goBack()">最新文章</a> &gt; ${post.title}
+    </div>
+    <div class="postCard">
+      <h3>${post.title}</h3>
+      <p>${post.content}</p>
+      <p><b>地點：</b>${post.locationName}</p>
+    </div>
+  `;
 
-      if (post.coordinates) {
-        let pos = {
-          lat: post.coordinates.latitude,
-          lng: post.coordinates.longitude
-        };
-        map.setCenter(pos);
-        map.setZoom(14);
-        new google.maps.Marker({ position: pos, map: map, title: post.title });
-      } else {
-        alert("此文章尚未提供座標");
-      }
+  if (post.coordinates) {
+    let pos = {
+      lat: post.coordinates.latitude,
+      lng: post.coordinates.longitude
+    };
+    map.setCenter(pos);
+    map.setZoom(14);
+    new google.maps.Marker({ position: pos, map: map, title: post.title });
+  } else {
+    alert("此文章尚未提供座標");
+  }
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 
     function goBack() {
       document.getElementById("postDetailView").style.display = "none";
