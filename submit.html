@@ -55,7 +55,6 @@
   <h2>我要投稿 - 分享你的故事</h2>
 
   <div id="formContainer">
-    <!-- https://forms.gle/6YLTnDS8nPDyFPrdA -->
     <iframe src="https://forms.gle/6YLTnDS8nPDyFPrdA" frameborder="0" marginheight="0" marginwidth="0">載入中…</iframe>
   </div>
 
@@ -74,9 +73,8 @@
   <!-- Firebase Firestore -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Firebase 設定
     const firebaseConfig = {
       apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
       authDomain: "taiwan-horror-map.firebaseapp.com",
@@ -86,21 +84,21 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 更新文章數量
     async function updatePostStats() {
       const snap = await getDocs(collection(db, "posts"));
       document.getElementById("totalCount").innerText = snap.size;
 
-      // 今日
       const today = new Date();
       today.setHours(0,0,0,0);
-      const todayISO = today.toISOString();
 
       let todayCount = 0;
       snap.forEach(doc => {
         const data = doc.data();
-        if (data.createdAt && new Date(data.createdAt).toISOString() >= todayISO) {
-          todayCount++;
+        if (data.createdAt) {
+          const createdTime = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+          if (createdTime >= today) {
+            todayCount++;
+          }
         }
       });
       document.getElementById("todayCount").innerText = todayCount;
