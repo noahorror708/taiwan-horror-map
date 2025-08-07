@@ -5,7 +5,7 @@
   <title>台灣恐怖地圖</title>
   <style>
     body { margin:0; font-family: Arial, sans-serif; background:#111; color:#eee; }
-    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; }
+    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; cursor:pointer; }
     h2 { text-align:center; margin:5px 0 15px; font-weight:normal; color:#aaa; }
 
     #container { display:flex; height:60vh; }
@@ -23,6 +23,7 @@
     #searchBox { width:100%; padding:6px; margin:8px 0; border:none; border-radius:6px; }
 
     #postArea { padding:20px; max-width:900px; margin:auto; }
+
     .postCard { background:#222; margin-bottom:15px; padding:15px; border-radius:10px; }
     .postCard h3 { margin-top:0; color:#ff6666; }
 
@@ -45,15 +46,20 @@
     }
     #backToTop img { width:24px; height:24px; }
 
-    /* 額外新增的 */
-    #postDetailView { display:none; padding:20px; max-width:900px; margin:auto; }
-    #postDetailView h2 { color:#ff4444; }
-    #postDetailView h4 { color:#66ccff; }
-    #postDetailView p { line-height:1.6; }
+    #backButton {
+      background: #444;
+      border: none;
+      color: #eee;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 <body>
-  <h1>台灣恐怖地圖</h1>
+  <h1 onclick="goBack()">台灣恐怖地圖</h1>
   <h2>蒐集台灣各地流傳的靈異故事與都市傳說</h2>
 
   <div id="container">
@@ -62,23 +68,21 @@
       <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
       <p>📖 文章清單載入中...</p>
     </div>
-
     <div id="map"></div>
   </div>
 
-  <!-- 最新文章列表區 -->
+  <!-- 文章區塊 -->
   <div id="postArea">
+    <!-- 清單列表 -->
     <div id="postListView">
       <h2>最新文章</h2>
       <div id="latestPosts"></div>
     </div>
 
-    <!-- 單篇文章詳情 -->
-    <div id="postDetailView">
-      <button onclick="goBack()">← 回到清單</button>
-      <h2 id="postTitle"></h2>
-      <h4 id="postLocation"></h4>
-      <p id="postContent"></p>
+    <!-- 單篇文章詳細 -->
+    <div id="postDetailView" style="display:none;">
+      <button id="backButton" onclick="goBack()">← 回到清單</button>
+      <div id="postDetailContent"></div>
     </div>
   </div>
 
@@ -164,7 +168,6 @@
         sidebar.appendChild(ul);
       }
 
-      // 搜尋功能
       document.getElementById("searchBox").addEventListener("input", e => {
         const keyword = e.target.value.toLowerCase();
         const links = sidebar.querySelectorAll("a");
@@ -183,6 +186,7 @@
       latest.forEach(post => {
         let card = document.createElement("div");
         card.className = "postCard";
+        card.style.cursor = "pointer";
         card.innerHTML = `<h3>${post.title}</h3><p>${post.content.substring(0,100)}...</p>`;
         card.onclick = () => showPost(post);
         latestDiv.appendChild(card);
@@ -190,31 +194,37 @@
     }
 
     function showPost(post) {
-      // 切換顯示區塊
       document.getElementById("postListView").style.display = "none";
       document.getElementById("postDetailView").style.display = "block";
 
-      // 填入文章內容
-      document.getElementById("postTitle").innerText = post.title;
-      document.getElementById("postLocation").innerText = "地點：" + (post.locationName || "未提供");
-      document.getElementById("postContent").innerText = post.content;
+      const detail = document.getElementById("postDetailContent");
+      detail.innerHTML = `
+        <div class="postCard">
+          <h3>${post.title}</h3>
+          <p>${post.content}</p>
+          <p><b>地點：</b>${post.locationName}</p>
+        </div>
+      `;
 
-      // 地圖移動到該點
       if (post.coordinates) {
-        const pos = {
+        let pos = {
           lat: post.coordinates.latitude,
           lng: post.coordinates.longitude
         };
         map.setCenter(pos);
         map.setZoom(14);
         new google.maps.Marker({ position: pos, map: map, title: post.title });
+      } else {
+        alert("此文章尚未提供座標");
       }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ← 回到清單
     function goBack() {
       document.getElementById("postDetailView").style.display = "none";
       document.getElementById("postListView").style.display = "block";
+      document.getElementById("map").scrollIntoView({ behavior: 'smooth' });
     }
 
     loadPosts();
