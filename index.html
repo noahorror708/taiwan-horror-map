@@ -1,73 +1,39 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>台灣恐怖地圖</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
-  <!-- 頁首 -->
-  <div id="header"></div>
 
-  <div id="container">
-    <div id="sidebar">
-      <input type="text" id="searchBox" placeholder="搜尋文章...">
-      <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
-      <p>📖 文章清單載入中...</p>
-    </div>
-    <div id="map"></div>
-  </div>
+  <!-- 引入 Header -->
+  <div id="header-placeholder"></div>
 
-  <!-- 文章區塊 -->
-  <div id="postArea">
-    <!-- 清單列表 -->
-    <div id="postListView">
-      <h2 id="latest">最新文章</h2>
-      <div id="latestPosts"></div>
-    </div>
+  <main>
+    <section>
+      <h2>最新故事</h2>
+      <div class="story">這裡是故事內容範例</div>
+    </section>
+  </main>
 
-    <!-- 單篇文章詳細 -->
-    <div id="postDetailView" style="display:none;">
-      <div class="breadcrumb" id="postBreadcrumb">
-        <a href="#" onclick="goBack()">最新文章</a> &gt; <span id="currentPostTitle">文章標題</span>
-      </div>
-      <div id="postDetailContent"></div>
-    </div>
-  </div>
+  <!-- 引入 Footer -->
+  <div id="footer-placeholder"></div>
 
-  <!-- 回到頂端 -->
-  <button id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'});">
-    <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="回到頂端">
-  </button>
-
-  <!-- 頁尾 -->
-  <div id="footer"></div>
-
-  <!-- Google Maps -->
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- 載入外部 JS -->
+  <script src="main.js"></script>
   <script>
-    let map;
-    function initMap() {
-      const taiwan = { lat: 23.6978, lng: 120.9605 };
-      map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 7,
-        center: taiwan,
-      });
-    }
-  </script>
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
-  </script>
-
-  <!-- 主程式 -->
-  <script type="module" src="main.js"></script>
-
-  <!-- 載入 header/footer -->
-  <script>
-    fetch("header.html").then(res => res.text()).then(html => {
-      document.getElementById("header").innerHTML = html;
+    // 載入 header 和 footer
+    fetch('header.html').then(res => res.text()).then(data => {
+      document.getElementById('header-placeholder').innerHTML = data;
     });
-    fetch("footer.html").then(res => res.text()).then(html => {
-      document.getElementById("footer").innerHTML = html;
+    fetch('footer.html').then(res => res.text()).then(data => {
+      document.getElementById('footer-placeholder').innerHTML = data;
     });
   </script>
 </body>
