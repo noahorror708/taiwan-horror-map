@@ -1,3 +1,4 @@
+/* ====== 原本的深色主題樣式 ====== */
 body {
   background: #111;
   color: #eee;
@@ -31,4 +32,30 @@ header {
   padding: 1rem;
   margin: 1rem;
   border-radius: 10px;
+}
+
+/* ====== 新增的結構與排版樣式 ====== */
+main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 1rem;
+}
+
+footer {
+  text-align: center;
+  background: #222;
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
+.button {
+  display: inline-block;
+  background: #ff6666;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  text-decoration: none;
+}
+.button:hover {
+  background: #ff4d4d;
 }
