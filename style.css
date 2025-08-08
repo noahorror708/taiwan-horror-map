@@ -59,3 +59,10 @@ footer {
 .button:hover {
   background: #ff4d4d;
 }
+
+/* ====== 地圖樣式 ====== */
+#map {
+  height: 500px;
+  margin: 1rem;
+  border-radius: 10px;
+}
