@@ -1,63 +1,74 @@
-// Firestore REST API 設定
-const PROJECT_ID = "你的專案ID";
-const COLLECTION = "posts";
-const API_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION}`;
-
-// 頁面初始化
 document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("articleList")) {
-    loadLatestArticles();
-  }
-  if (document.getElementById("map")) {
-    initMap();
-  }
-});
-
-// 載入最新文章
-function loadLatestArticles() {
-  fetch(API_URL)
-    .then(res => res.json())
-    .then(data => {
-      const listContainer = document.getElementById("articleList");
-      listContainer.innerHTML = "";
-
-      if (!data.documents) {
-        listContainer.innerHTML = "<p>目前沒有文章。</p>";
-        return;
-      }
-
-      data.documents.forEach(doc => {
-        const fields = doc.fields;
-        const card = document.createElement("div");
-        card.className = "article-card";
-        card.innerHTML = `
-          <h3>${fields.title.stringValue}</h3>
-          <p>${fields.locationName.stringValue}</p>
-        `;
-        card.addEventListener("click", () => {
-          showArticle(fields);
-        });
-        listContainer.appendChild(card);
-      });
-    })
-    .catch(err => {
-      console.error(err);
+  // 載入 header & footer
+  fetch("header.html").then(res => res.text()).then(html => {
+    document.getElementById("header-container").innerHTML = html;
+    document.getElementById("site-title").addEventListener("click", () => {
+      location.href = "index.html";
     });
-}
+  });
+  fetch("footer.html").then(res => res.text()).then(html => {
+    document.getElementById("footer-container").innerHTML = html;
+  });
 
-// 顯示單篇文章
-function showArticle(fields) {
-  const listContainer = document.getElementById("articleList");
-  listContainer.innerHTML = `
-    <div class="breadcrumb">
-      <a href="#" onclick="loadLatestArticles(); return false;">最新文章</a> &gt; ${fields.title.stringValue}
-    </div>
-    <h2>${fields.title.stringValue}</h2>
-    <p><em>${fields.locationName.stringValue}</em></p>
-    <p>${fields.content.stringValue}</p>
-    <div id="map"></div>
-  `;
+  // 麵包屑點擊
+  document.getElementById("breadcrumb-home").addEventListener("click", (e) => {
+    e.preventDefault();
+    showLatestPosts();
+  });
 
-  // 初始化地圖並顯示範圍
-  setTimeout(() => {
-    in
+  // 初始化地圖
+  const map = L.map("map").setView([23.5, 121], 7);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19
+  }).addTo(map);
+
+  // 假資料（之後可改 Firestore 撈）
+  const posts = [
+    { title: "鬼屋事件", location: "台北市", lat: 25.03, lng: 121.56, content: "故事內容..." },
+    { title: "山中怪聲", location: "南投縣", lat: 23.96, lng: 120.97, content: "故事內容..." }
+  ];
+
+  // 加 marker & 500m 半徑
+  posts.forEach(post => {
+    const marker = L.marker([post.lat, post.lng]).addTo(map);
+    const circle = L.circle([post.lat, post.lng], { radius: 500, color: "red", fillOpacity: 0.2 }).addTo(map);
+    marker.on("click", () => {
+      showPostDetail(post);
+      map.setView([post.lat, post.lng], 15);
+    });
+  });
+
+  // 顯示最新文章清單
+  function showLatestPosts() {
+    document.getElementById("post-detail").classList.add("hidden");
+    const listEl = document.getElementById("latestList");
+    listEl.innerHTML = "";
+    posts.forEach(post => {
+      const div = document.createElement("div");
+      div.textContent = `${post.title} - ${post.location}`;
+      div.addEventListener("click", () => {
+        showPostDetail(post);
+        map.setView([post.lat, post.lng], 15);
+      });
+      listEl.appendChild(div);
+    });
+  }
+
+  // 顯示單篇文章
+  function showPostDetail(post) {
+    document.getElementById("post-detail").classList.remove("hidden");
+    document.getElementById("detail-title").textContent = post.title;
+    document.getElementById("detail-location").textContent = post.location;
+    document.getElementById("detail-body").textContent = post.content;
+
+    document.getElementById("post-breadcrumb").innerHTML = `
+      <a href="#" id="breadcrumb-latest">最新文章</a> &gt; ${post.title}
+    `;
+    document.getElementById("breadcrumb-latest").addEventListener("click", (e) => {
+      e.preventDefault();
+      showLatestPosts();
+    });
+  }
+
+  showLatestPosts();
+});
