@@ -2,52 +2,244 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>台灣恐怖地圖</title>
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; background:#111; color:#eee; }
+    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; cursor:pointer; }
+    h2 { text-align:center; margin:5px 0 15px; font-weight:normal; color:#aaa; }
+
+    #container { display:flex; height:60vh; }
+    #sidebar {
+      width:250px; background:#222; overflow-y:auto; padding:10px;
+    }
+    #sidebar h3 { margin:10px 0; color:#66ccff; }
+    #sidebar ul { list-style:none; padding:0; }
+    #sidebar li { margin:5px 0; }
+    #sidebar a { color:#eee; text-decoration:none; display:block; padding:5px; border-radius:6px; }
+    #sidebar a:hover { background:#333; }
+
+    #map { flex:1; }
+
+    #searchBox { width:100%; padding:6px; margin:8px 0; border:none; border-radius:6px; }
+
+    #postArea { padding:20px; max-width:900px; margin:auto; }
+
+    .postCard { background:#222; margin-bottom:15px; padding:15px; border-radius:10px; }
+    .postCard h3 { margin-top:0; color:#ff6666; }
+
+    footer { margin-top:30px; padding:20px; background:#222; text-align:center; font-size:14px; color:#bbb; }
+
+    #backToTop {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ff4444;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:0 4px 8px rgba(0,0,0,0.4);
+    }
+    #backToTop img { width:24px; height:24px; }
+
+    .breadcrumb {
+      margin: 10px 0;
+      color: #888;
+    }
+    .breadcrumb a {
+      color: #66ccff;
+      text-decoration: none;
+    }
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
+  <!-- 動態載入 header -->
+  <div id="header"></div>
 
-<!-- Header -->
-<div id="header"></div>
-
-<main>
-  <!-- Google Map -->
-  <div id="map"></div>
-
-  <!-- 文章列表 -->
-  <div id="postListView">
-    <input type="text" id="searchBox" placeholder="搜尋文章...">
-    <div id="latestPosts"></div>
+  <div id="container">
+    <div id="sidebar">
+      <input type="text" id="searchBox" placeholder="搜尋文章...">
+      <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
+      <p>📖 文章清單載入中...</p>
+    </div>
+    <div id="map"></div>
   </div>
 
-  <!-- 單篇文章詳情 -->
-  <div id="postDetailView" style="display:none;">
-    <h2 id="currentPostTitle"></h2>
-    <div id="postDetailContent"></div>
-    <button onclick="goBack()">返回列表</button>
+  <!-- 文章區塊 -->
+  <div id="postArea">
+    <!-- 清單列表 -->
+    <div id="postListView">
+      <h2 id="latest">最新文章</h2>
+      <div id="latestPosts"></div>
+    </div>
+
+    <!-- 單篇文章詳細 -->
+    <div id="postDetailView" style="display:none;">
+      <div class="breadcrumb" id="postBreadcrumb">
+        <a href="#" onclick="goBack()">最新文章</a> &gt; <span id="currentPostTitle">文章標題</span>
+      </div>
+      <div id="postDetailContent"></div>
+    </div>
   </div>
-</main>
 
-<!-- Footer -->
-<div id="footer"></div>
+  <!-- 回到頂端 -->
+  <button id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'});">
+    <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="回到頂端">
+  </button>
 
-<!-- JS 載入 -->
-<script src="js/common.js"></script>
-<script src="js/map.js"></script>
-<script type="module" src="js/posts.js"></script>
-<script async src="https://maps.googleapis.com/maps/api/js?key=-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCpabuGApdEj8uR\n9077pT0K2iJCxdQj68+u5tkZOoeYx1FyY9zXuPEnXvu16iBIQ7/6LqDO43BhMwkp\nvMPlPLJtrlQRM/SdxSxk0mlDrpaJr5781bLhINX6J9yhFr2H84M7150IRRA8SPgU\nhEjMCV6P3BGzg5NaQUjBITixFFIdIyhfSMcgeJx9WNcnPN0g3BbiSef9LaufUxFj\n23/AW8gy4H6ep9dI3fmFysGAu7rs6+3mjCRzeD+BUbHYWfpd4DCcUaepARXhPDdj\nZPKbAERmvcIKblMktHWpWyhRZ3PkKdT4vzv2A8HK2ONnFVNPFtJMWM1xvHsxdjMH\nvB1asD0PAgMBAAECgf9NOzGrT4MPvn4ASVSpY9gVzx909vcKWhvbRdqFpc7BuUkN\nr8QrDGEBzg8QKrrJCb9sEhHx5Myh3XUivwlh8Gfftqh+XF5U98qQhkyj2Yowhd98\ncuBkslc0aCThSyJJbpvOjgRT3uwAU2G1+LaCa+Eohu6Z9ssX/9g6FQksofjNMNZi\nHxULuLyanL7v0/O5ffZLAScpAIaH3wJBThMa8RnEXYHJ1QvsAY7eykgLChYPr32U\n99HXYgvPmb9Zw2Kjo+Trlj1OF0+AZDpfjv8D44LfCn6DoakUK03naDgQb0JjrJry\n4gv94xXsT1+/i6ipWB7GaeR2ilFy4FI49WAJWgECgYEA0oQ5zOoRFIuRe83Un0TK\ndBoNqgYwjZpb9TSIFIZCE/EQAP/tgUG4M5uiA8Y/JDibqMZV4KzI2c9WiVDq6oHV\nVUbLstsmwulVnUujVoDgXt8yYGkM4UUh/JF4NrfNx3mLuYK+gEXj5zcwKiEdP9RC\nlp8H/a8eb1NmJ7TWKFaHWn0CgYEAzgQNT6b2t78T4T3TdACkpVF4S8wRa25q9XTU\nwpXOae2RDQZe9MLGI7v50+aOoK1Um6LRpFLBtWYcYpJQSUyhr8g1vCNSQ5qea8Ug\nq54ee9zI5v5EKJLI28WNQTYaIAdHidYX1u40dVDbCi2AFh9WpbzrN+bUVS6KGOnl\nzrRfP3sCgYEAiF997iAHdo6/bTs2rQJsQHAMQAOIeoLvZVZlfR5IOhDktDEW07AW\nOuBsQROxHa7KL7hkM4rbBjaJsaTIuafn4jldhfzwDD4J5z7zjfso3myqfsguvtQB\nI1O9U30Ygktb1446CHC+Ja+btP8Eqq+/f0GAdLd3+NhHChvcy/7Z6iUCgYEAzQNX\nQ8bBioVKAUIHZU8miaWTcsp3I1PUeMN03tc5fEx/pliKskQJ7ZGoweiUUu1qXx8e\nRMpeHmipIqa74tWxqT4xyzHTMZdyw4h+RIqrh1NlUgoCReYcoCfts9FlGi5kUJSP\nUMHnzj9SWsSAzIMPNQvVf+Hjt4kCwFwy5wq0JnUCgYEAgX0NVvAkXYGqXA25Sg70\ns0teZfx7qgqZR9HUP5/TQhTJ5wNvYvr/N6p2p3AQ9dL49tKo9xmW9nAMN0RZxAba\ntXa1J032+rFr5ZX7UgqskhYAwCTm9hYMKmm8qbYrxfdN1/gFnANia2KYalKrRfHg\n1v0wrXfK69bHVRTwF2/Cv44=\n-----END PRIVATE KEY-----\n"&callback=initMap"></script>
+  <!-- 動態載入 footer -->
+  <div id="footer"></div>
 
-<script>
-  // 載入 header & footer
-  fetch('header.html')
-    .then(res => res.text())
-    .then(html => document.getElementById('header').innerHTML = html);
+  <!-- Google Maps -->
+  <script>
+    let map;
+    function initMap() {
+      const taiwan = { lat: 23.6978, lng: 120.9605 };
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 7,
+        center: taiwan,
+      });
+    }
+  </script>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
+  </script>
 
-  fetch('footer.html')
-    .then(res => res.text())
-    .then(html => document.getElementById('footer').innerHTML = html);
-</script>
+  <!-- 載入 header & footer -->
+  <script>
+    async function loadHTML(id, file) {
+      const res = await fetch(file);
+      const text = await res.text();
+      document.getElementById(id).innerHTML = text;
+    }
+    loadHTML("header", "header.html");
+    loadHTML("footer", "footer.html");
+  </script>
 
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
+      authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
+      projectId: "taiwan-horror-map-e257d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadPosts() {
+      const snap = await getDocs(collection(db, "posts"));
+      let groups = {};
+      let allPosts = [];
+
+      snap.forEach(doc => {
+        const data = doc.data();
+        let region = data.locationName || "未分類";
+        if (!groups[region]) groups[region] = [];
+        groups[region].push({ id: doc.id, ...data });
+        allPosts.push({ id: doc.id, ...data });
+      });
+
+      renderSidebar(groups);
+      renderLatest(allPosts);
+    }
+
+    function renderSidebar(groups) {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.innerHTML = `
+        <input type="text" id="searchBox" placeholder="搜尋文章...">
+        <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
+      `;
+
+      for (let region in groups) {
+        let h3 = document.createElement("h3");
+        h3.innerText = region;
+        sidebar.appendChild(h3);
+
+        let ul = document.createElement("ul");
+        groups[region].forEach(post => {
+          let li = document.createElement("li");
+          let a = document.createElement("a");
+          a.innerText = post.title;
+          a.href = "#";
+          a.onclick = () => showPost(post);
+          li.appendChild(a);
+          ul.appendChild(li);
+        });
+        sidebar.appendChild(ul);
+      }
+
+      document.getElementById("searchBox").addEventListener("input", e => {
+        const keyword = e.target.value.toLowerCase();
+        const links = sidebar.querySelectorAll("a");
+        links.forEach(link => {
+          link.style.display = link.innerText.toLowerCase().includes(keyword) ? "block" : "none";
+        });
+      });
+    }
+
+    function renderLatest(posts) {
+      posts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const latest = posts.slice(0,3);
+      const latestDiv = document.getElementById("latestPosts");
+      latestDiv.innerHTML = "";
+
+      latest.forEach(post => {
+        let card = document.createElement("div");
+        card.className = "postCard";
+        card.style.cursor = "pointer";
+        card.innerHTML = `<h3>${post.title}</h3><p>${post.content.substring(0,100)}...</p>`;
+        card.onclick = () => showPost(post);
+        latestDiv.appendChild(card);
+      });
+    }
+
+    function showPost(post) {
+      document.getElementById("postListView").style.display = "none";
+      document.getElementById("postDetailView").style.display = "block";
+      document.getElementById("currentPostTitle").innerText = post.title;
+
+      const detail = document.getElementById("postDetailContent");
+      detail.innerHTML = `
+        <div class="postCard">
+          <h3>${post.title}</h3>
+          <p>${post.content}</p>
+          <p><b>地點：</b>${post.locationName}</p>
+        </div>
+      `;
+
+      if (post.coordinates) {
+        let pos = {
+          lat: post.coordinates.latitude,
+          lng: post.coordinates.longitude
+        };
+        map.setCenter(pos);
+        map.setZoom(14);
+        new google.maps.Marker({ position: pos, map: map, title: post.title });
+      } else {
+        alert("此文章尚未提供座標");
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goBack() {
+      document.getElementById("postDetailView").style.display = "none";
+      document.getElementById("postListView").style.display = "block";
+      document.getElementById("map").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    loadPosts();
+  </script>
 </body>
 </html>
