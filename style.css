@@ -1,4 +1,3 @@
-/* 全域樣式 */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -6,81 +5,91 @@ body {
   color: #eee;
 }
 
-/* 標題區 */
 header {
   background: #222;
-  padding: 15px;
-  text-align: center;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
 header h1 {
-  margin: 0;
   color: #ff4444;
   cursor: pointer;
 }
-header nav {
-  margin-top: 8px;
-}
+
 header nav a {
-  color: #66ccff;
-  margin: 0 10px;
+  color: #eee;
+  margin-left: 15px;
   text-decoration: none;
 }
+
 header nav a:hover {
   text-decoration: underline;
 }
 
-/* 主要內容 */
-main {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
-}
-
-/* 卡片樣式 */
-.article-card {
+footer {
   background: #222;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.article-card:hover {
-  background: #333;
+  color: #aaa;
+  text-align: center;
+  padding: 10px;
+  margin-top: 20px;
 }
 
-/* 麵包屑 */
 .breadcrumb {
-  margin: 10px 0;
+  padding: 8px 20px;
+  background: #1a1a1a;
   color: #888;
 }
+
 .breadcrumb a {
   color: #66ccff;
   text-decoration: none;
 }
+
 .breadcrumb a:hover {
   text-decoration: underline;
 }
 
-/* 地圖容器 */
-#map {
-  width: 100%;
-  height: 500px;
-  border-radius: 10px;
-  margin-top: 15px;
+.layout {
+  display: flex;
 }
 
-/* 頁腳 */
-footer {
-  background: #222;
-  text-align: center;
+#sidebar {
+  width: 300px;
+  background: #1a1a1a;
+  padding: 10px;
+}
+
+#map {
+  height: 500px;
+  background: #333;
+}
+
+.article-list {
+  margin-top: 10px;
+}
+
+.article-list div {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+}
+
+.article-list div:hover {
+  background: #333;
+}
+
+.article-content {
   padding: 15px;
-  color: #888;
-  margin-top: 40px;
 }
-footer a {
-  color: #66ccff;
-  text-decoration: none;
+
+.hidden {
+  display: none;
 }
-footer a:hover {
-  text-decoration: underline;
+
+#searchBox {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
 }
