@@ -144,11 +144,10 @@
     const snap = await getDocs(collection(db, "posts"));
     let groups = {};
 
-    allPosts = []; // 重設文章清單
+    allPosts = [];
 
     snap.forEach(doc => {
       const data = doc.data();
-
       if (data.createdAt && data.createdAt.toDate) {
         data.createdAt = data.createdAt.toDate();
       }
@@ -162,10 +161,7 @@
     renderSidebar(groups);
     renderLatest(allPosts);
 
-    // 初始化時先顯示範圍內的標記
     updateMarkersByBounds();
-
-    // 地圖移動或縮放結束後更新標記
     map.addListener("idle", updateMarkersByBounds);
   }
 
@@ -187,7 +183,7 @@
         let a = document.createElement("a");
         a.innerText = post.title;
         a.href = "#";
-        a.onclick = () => showPost(post);
+        a.onclick = () => showPostInline(post);
         li.appendChild(a);
         ul.appendChild(li);
       });
@@ -210,21 +206,58 @@
     latestDiv.innerHTML = "";
 
     latest.forEach(post => {
-      let card = document.createElement("div");
-      card.className = "postCard";
-      card.style.cursor = "pointer";
-      card.innerHTML = `
-        <h3>${post.title}</h3>
-        <p>${(post.content || "").substring(0,100)}...</p>
-      `;
-      card.onclick = () => showPost(post);
-      latestDiv.appendChild(card);
+      latestDiv.appendChild(createPostCard(post));
     });
   }
 
-  // 更新地圖範圍內的標記
+  function createPostCard(post) {
+    let card = document.createElement("div");
+    card.className = "postCard";
+    card.style.cursor = "pointer";
+    card.innerHTML = `
+      <h3>${post.title}</h3>
+      <p>${(post.content || "").substring(0,100)}...</p>
+    `;
+    card.onclick = () => showPostInline(post);
+    return card;
+  }
+
+  // 點擊文章 → 插到最新文章最上方
+  function showPostInline(post) {
+    const latestDiv = document.getElementById("latestPosts");
+
+    // 如果已存在，先移除
+    [...latestDiv.children].forEach(child => {
+      if (child.querySelector("h3").innerText === post.title) {
+        latestDiv.removeChild(child);
+      }
+    });
+
+    // 建立完整文章卡片
+    let fullCard = document.createElement("div");
+    fullCard.className = "postCard";
+    fullCard.innerHTML = `
+      <h3>${post.title}</h3>
+      <p>${post.content}</p>
+      <p><b>地點：</b>${post.locationName}</p>
+    `;
+
+    // 插到最前面
+    latestDiv.insertBefore(fullCard, latestDiv.firstChild);
+
+    // 地圖聚焦
+    if (post.coordinates) {
+      let pos = {
+        lat: post.coordinates.latitude,
+        lng: post.coordinates.longitude
+      };
+      map.setCenter(pos);
+      map.setZoom(14);
+    }
+  }
+
   function updateMarkersByBounds() {
-    if (!map.getBounds()) return; // 地圖尚未初始化完成
+    if (!map.getBounds()) return;
     clearMarkers();
 
     const bounds = map.getBounds();
@@ -249,7 +282,7 @@
       title: post.title
     });
     marker.addListener("click", () => {
-      showPost(post);
+      showPostInline(post);
     });
     markers.push(marker);
   }
@@ -257,40 +290,6 @@
   function clearMarkers() {
     markers.forEach(m => m.setMap(null));
     markers = [];
-  }
-
-  function showPost(post) {
-    document.getElementById("postListView").style.display = "none";
-    document.getElementById("postDetailView").style.display = "block";
-    document.getElementById("currentPostTitle").innerText = post.title;
-
-    const detail = document.getElementById("postDetailContent");
-    detail.innerHTML = `
-      <div class="postCard">
-        <h3>${post.title}</h3>
-        <p>${post.content}</p>
-        <p><b>地點：</b>${post.locationName}</p>
-      </div>
-    `;
-
-    if (post.coordinates) {
-      let pos = {
-        lat: post.coordinates.latitude,
-        lng: post.coordinates.longitude
-      };
-      map.setCenter(pos);
-      map.setZoom(14);
-    } else {
-      alert("此文章尚未提供座標");
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function goBack() {
-    document.getElementById("postDetailView").style.display = "none";
-    document.getElementById("postListView").style.display = "block";
-    document.getElementById("map").scrollIntoView({ behavior: 'smooth' });
   }
 
   loadPosts();
