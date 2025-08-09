@@ -3,127 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
+  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-  <style>
-    /* 全域背景與字體 */
-    body {
-      background-color: #000; /* 黑底 */
-      color: #fff; /* 白字 */
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
-    /* 標題與副標題 */
-    header {
-      padding: 15px;
-    }
-
-    header h1 {
-      font-size: 28px;
-      margin: 0;
-    }
-
-    .subtitle {
-      font-size: 16px;
-      color: #ccc; /* 淺灰色 */
-      margin-top: -5px;
-    }
-
-    /* 地圖區域 */
-    #map {
-      height: 500px;
-      width: 100%;
-      z-index: 1;
-    }
-
-    /* 漢堡選單按鈕 */
-    .hamburger {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: transparent;
-      border: none;
-      color: white;
-      font-size: 24px;
-      z-index: 1001;
-      cursor: pointer;
-    }
-
-    /* 漢堡抽屜 */
-    #city-drawer {
-      position: fixed;
-      top: 0;
-      left: -250px;
-      width: 250px;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.95);
-      overflow-y: auto;
-      transition: left 0.3s ease;
-      padding: 20px;
-      z-index: 1000;
-    }
-
-    #city-drawer.open {
-      left: 0;
-    }
-
-    #city-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    #city-list li {
-      margin: 8px 0;
-    }
-
-    #city-list a {
-      color: #fff;
-      text-decoration: none;
-    }
-
-    #city-list a:hover {
-      text-decoration: underline;
-    }
-
-    /* 最新文章區塊 */
-    .latest-section {
-      padding: 20px;
-    }
-
-    .latest-section h2 {
-      margin-top: 0;
-    }
-
-    /* 抽屜背景遮罩 */
-    .drawer-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 900;
-      display: none;
-    }
-
-    .drawer-backdrop.show {
-      display: block;
-    }
-  </style>
 </head>
 <body>
-  <!-- 頁首（直接內嵌，不再載入 header.html） -->
+  <!-- 頁首 -->
   <header>
     <h1>台灣恐怖地圖</h1>
-    <div class="subtitle">探索台灣的都市傳說與恐怖故事</div>
+    <p class="subtitle">探索全台驚悚與靈異故事</p>
   </header>
 
-  <!-- 地圖 -->
+  <!-- 漢堡按鈕 -->
   <button id="menu-toggle" class="hamburger">≡</button>
+
+  <!-- 抽屜 -->
   <nav id="city-drawer">
     <ul id="city-list"></ul>
   </nav>
+
+  <!-- 地圖 -->
   <div id="map"></div>
 
   <!-- 最新文章 -->
@@ -132,97 +30,10 @@
     <ul id="latest-articles"></ul>
   </section>
 
-  <!-- 頁尾（直接內嵌，不再載入 footer.html） -->
-  <footer style="text-align:center; padding:10px; font-size:14px; color:#888;">
-    © 2025 台灣恐怖地圖
-  </footer>
-
+  <!-- Firebase & Leaflet -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
-  <script>
-    // ===================== Firebase 初始化 =====================
-    const firebaseConfig = {
-  apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
-  authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
-  projectId: "taiwan-horror-map-e257d",
-  storageBucket: "taiwan-horror-map-e257d.firebasestorage.app",
-  messagingSenderId: "59145752144",
-  appId: "1:59145752144:web:1f6ccc6fecd280defc8b55"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // ===================== 地圖初始化 =====================
-    let map = L.map("map").setView([23.5, 121], 7);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap 貢獻者"
-    }).addTo(map);
-
-    // ===================== 抽屜控制 =====================
-    const menuToggle = document.getElementById("menu-toggle");
-    const cityDrawer = document.getElementById("city-drawer");
-
-    // 建立背景遮罩
-    const backdrop = document.createElement("div");
-    backdrop.classList.add("drawer-backdrop");
-    document.body.appendChild(backdrop);
-
-    menuToggle.addEventListener("click", () => {
-      cityDrawer.classList.toggle("open");
-      backdrop.classList.toggle("show");
-    });
-
-    backdrop.addEventListener("click", () => {
-      cityDrawer.classList.remove("open");
-      backdrop.classList.remove("show");
-    });
-
-    // ===================== 讀取最新文章 =====================
-    async function loadLatestArticles() {
-      const latestList = document.getElementById("latest-articles");
-      latestList.innerHTML = "<li>載入中...</li>";
-
-      try {
-        const snapshot = await db.collection("posts")
-          .orderBy("createdAt", "desc")
-          .limit(5)
-          .get();
-
-        latestList.innerHTML = "";
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const li = document.createElement("li");
-          li.innerHTML = `<a href="post.html?id=${doc.id}">${data.title || "未命名文章"}</a>`;
-          latestList.appendChild(li);
-        });
-      } catch (error) {
-        latestList.innerHTML = `<li>讀取失敗：${error.message}</li>`;
-      }
-    }
-
-    // ===================== 讀取地圖標記 =====================
-    async function loadMapMarkers() {
-      try {
-        const snapshot = await db.collection("posts").get();
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          if (data.lat && data.lng) {
-            L.marker([data.lat, data.lng])
-              .addTo(map)
-              .bindPopup(`<b>${data.title}</b><br>${data.locationName || ""}`);
-          }
-        });
-      } catch (error) {
-        console.error("載入地圖標記失敗：", error);
-      }
-    }
-
-    // ===================== 啟動 =====================
-    document.addEventListener("DOMContentLoaded", () => {
-      loadLatestArticles();
-      loadMapMarkers();
-    });
-  </script>
+  <script src="main.js"></script>
 </body>
 </html>
