@@ -1,68 +1,31 @@
+
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>台灣恐怖地圖</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="common.js" defer></script>
-  <script src="main.js" type="module" defer></script>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- Header -->
-  <div id="header"></div>
+<main>
+  <div id="map"></div>
+  <div id="postListView">
+    <input type="text" id="searchBox" placeholder="搜尋文章...">
+    <div id="latestPosts"></div>
+  </div>
+  <div id="postDetailView" style="display:none;">
+    <h2 id="currentPostTitle"></h2>
+    <div id="postDetailContent"></div>
+    <button onclick="goBack()">返回列表</button>
+  </div>
+</main>
 
-  <main class="main-container">
-
-    <!-- 抽屜按鈕 -->
-    <button id="drawerToggle" class="drawer-toggle">☰</button>
-
-    <!-- 抽屜 -->
-    <aside id="drawer" class="drawer">
-      <h2>文章分類</h2>
-      <ul id="categoryList">
-        <!-- 類別清單由 JS 動態載入 -->
-      </ul>
-    </aside>
-
-    <!-- 主要內容 -->
-    <section class="content">
-
-      <!-- 搜尋欄 -->
-      <div class="search-container">
-        <input id="searchBox" type="text" placeholder="🔍 搜尋文章...">
-      </div>
-
-      <!-- 左側文章列表（最新文章） -->
-      <div id="postListView">
-        <h2>文章列表</h2>
-        <div id="latestPosts" class="post-list">
-          <!-- JS 載入最新文章 -->
-        </div>
-      </div>
-
-      <!-- 單篇文章詳情 -->
-      <div id="postDetailView" style="display:none;">
-        <button onclick="goBack()">← 回到列表</button>
-        <h2 id="currentPostTitle"></h2>
-        <div id="postDetailContent"></div>
-      </div>
-
-      <!-- 地圖 -->
-      <div id="map" class="map-container"></div>
-
-    </section>
-
-  </main>
-
-  <!-- Footer -->
-  <div id="footer"></div>
-
-  <!-- Google Maps API -->
-  <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU&callback=initMap">
-  </script>
+<script src="js/common.js"></script>
+<script src="js/map.js"></script>
+<script type="module" src="js/posts.js"></script>
+<script async src="https://maps.googleapis.com/maps/api/js?key=YAIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU&callback=initMap"></script>
 
 </body>
 </html>
