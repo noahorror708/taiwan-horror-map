@@ -99,134 +99,202 @@
   <div id="footer"></div>
 
   <!-- Google Maps -->
-<script>
-  let map;
-  let markers = [];
-  let posts = [];
+  <script>
+    let map;
+    function initMap() {
+      const taiwan = { lat: 23.6978, lng: 120.9605 };
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 7,
+        center: taiwan,
+      });
+    }
+  </script>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
+  </script>
 
-  // 初始化 Firebase
+  <!-- 載入 header & footer -->
+  <script>
+    async function loadHTML(id, file) {
+      const res = await fetch(file);
+      const text = await res.text();
+      document.getElementById(id).innerHTML = text;
+    }
+    loadHTML("header", "header.html");
+    loadHTML("footer", "footer.html");
+  </script>
+
+  <!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
     authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
-    projectId: "taiwan-horror-map-e257d",
+    projectId: "taiwan-horror-map-e257d"
   };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
 
-  // 初始化地圖
-  function initMap() {
-    const taiwan = { lat: 23.6978, lng: 120.9605 };
-    map = new google.maps.Map(document.getElementById("map"), {
-      zoom: 7,
-      center: taiwan,
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let markers = [];
+  let allPosts = [];
+
+  async function loadPosts() {
+    const snap = await getDocs(collection(db, "posts"));
+    let groups = {};
+
+    allPosts = []; // 重設文章清單
+
+    snap.forEach(doc => {
+      const data = doc.data();
+
+      if (data.createdAt && data.createdAt.toDate) {
+        data.createdAt = data.createdAt.toDate();
+      }
+
+      let region = data.locationName || "未分類";
+      if (!groups[region]) groups[region] = [];
+      groups[region].push({ id: doc.id, ...data });
+      allPosts.push({ id: doc.id, ...data });
     });
 
-    // 地圖 idle 後更新範圍內的標記
-    map.addListener("idle", () => {
-      updateMarkersByBounds();
-    });
+    renderSidebar(groups);
+    renderLatest(allPosts);
 
-    // 等地圖準備好才載文章
-    loadPosts();
+    // 初始化時先顯示範圍內的標記
+    updateMarkersByBounds();
+
+    // 地圖移動或縮放結束後更新標記
+    map.addListener("idle", updateMarkersByBounds);
   }
 
-  // 載入文章
-  function loadPosts() {
-    db.collection("articles")
-      .get()
-      .then((querySnapshot) => {
-        posts = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          posts.push({
-            id: doc.id,
-            title: data.title || "無標題",
-            content: data.content || "",
-            lat: data.coordinates?.[0],
-            lng: data.coordinates?.[1],
-            createdAt: data.createdAt || null,
-          });
-        });
+  function renderSidebar(groups) {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.innerHTML = `
+      <input type="text" id="searchBox" placeholder="搜尋文章...">
+      <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
+    `;
 
-        // 按日期排序（處理 createdAt 缺失）
-        posts.sort((a, b) => {
-          let dateA = a.createdAt ? new Date(a.createdAt) : 0;
-          let dateB = b.createdAt ? new Date(b.createdAt) : 0;
-          return dateB - dateA;
-        });
+    for (let region in groups) {
+      let h3 = document.createElement("h3");
+      h3.innerText = region;
+      sidebar.appendChild(h3);
 
-        populateSidebar();
-        updateMarkersByBounds(); // 載入完文章就顯示標記
+      let ul = document.createElement("ul");
+      groups[region].forEach(post => {
+        let li = document.createElement("li");
+        let a = document.createElement("a");
+        a.innerText = post.title;
+        a.href = "#";
+        a.onclick = () => showPost(post);
+        li.appendChild(a);
+        ul.appendChild(li);
       });
+      sidebar.appendChild(ul);
+    }
+
+    document.getElementById("searchBox").addEventListener("input", e => {
+      const keyword = e.target.value.toLowerCase();
+      const links = sidebar.querySelectorAll("a");
+      links.forEach(link => {
+        link.style.display = link.innerText.toLowerCase().includes(keyword) ? "block" : "none";
+      });
+    });
   }
 
-  // 更新範圍內的標記
+  function renderLatest(posts) {
+    posts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const latest = posts.slice(0,3);
+    const latestDiv = document.getElementById("latestPosts");
+    latestDiv.innerHTML = "";
+
+    latest.forEach(post => {
+      let card = document.createElement("div");
+      card.className = "postCard";
+      card.style.cursor = "pointer";
+      card.innerHTML = `
+        <h3>${post.title}</h3>
+        <p>${(post.content || "").substring(0,100)}...</p>
+      `;
+      card.onclick = () => showPost(post);
+      latestDiv.appendChild(card);
+    });
+  }
+
+  // 更新地圖範圍內的標記
   function updateMarkersByBounds() {
+    if (!map.getBounds()) return; // 地圖尚未初始化完成
     clearMarkers();
+
     const bounds = map.getBounds();
-    posts.forEach((post) => {
-      if (bounds && post.lat && post.lng) {
-        const position = new google.maps.LatLng(post.lat, post.lng);
-        if (bounds.contains(position)) {
-          const marker = new google.maps.Marker({
-            position,
-            map,
-            title: post.title,
-          });
-          marker.addListener("click", () => {
-            showPost(post.id);
-          });
-          markers.push(marker);
+    allPosts.forEach(post => {
+      if (post.coordinates) {
+        let pos = new google.maps.LatLng(post.coordinates.latitude, post.coordinates.longitude);
+        if (bounds.contains(pos)) {
+          addMarker(post);
         }
       }
     });
   }
 
-  // 清除所有標記
+  function addMarker(post) {
+    let pos = {
+      lat: post.coordinates.latitude,
+      lng: post.coordinates.longitude
+    };
+    let marker = new google.maps.Marker({
+      position: pos,
+      map: map,
+      title: post.title
+    });
+    marker.addListener("click", () => {
+      showPost(post);
+    });
+    markers.push(marker);
+  }
+
   function clearMarkers() {
-    markers.forEach((marker) => marker.setMap(null));
+    markers.forEach(m => m.setMap(null));
     markers = [];
   }
 
-  // 填充左側文章列表
-  function populateSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    const ul = document.createElement("ul");
-    posts.forEach((post) => {
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      a.textContent = post.title;
-      a.href = "#";
-      a.addEventListener("click", (e) => {
-        e.preventDefault();
-        showPost(post.id);
-      });
-      li.appendChild(a);
-      ul.appendChild(li);
-    });
-    sidebar.appendChild(ul);
+  function showPost(post) {
+    document.getElementById("postListView").style.display = "none";
+    document.getElementById("postDetailView").style.display = "block";
+    document.getElementById("currentPostTitle").innerText = post.title;
+
+    const detail = document.getElementById("postDetailContent");
+    detail.innerHTML = `
+      <div class="postCard">
+        <h3>${post.title}</h3>
+        <p>${post.content}</p>
+        <p><b>地點：</b>${post.locationName}</p>
+      </div>
+    `;
+
+    if (post.coordinates) {
+      let pos = {
+        lat: post.coordinates.latitude,
+        lng: post.coordinates.longitude
+      };
+      map.setCenter(pos);
+      map.setZoom(14);
+    } else {
+      alert("此文章尚未提供座標");
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // 顯示單篇文章
-  function showPost(id) {
-    const post = posts.find((p) => p.id === id);
-    if (!post) return;
-
-    const contentArea = document.getElementById("post-content");
-    contentArea.innerHTML = `<h2>${post.title}</h2><p>${post.content}</p>`;
-    document.getElementById("post-detail").style.display = "block";
+  function goBack() {
+    document.getElementById("postDetailView").style.display = "none";
+    document.getElementById("postListView").style.display = "block";
+    document.getElementById("map").scrollIntoView({ behavior: 'smooth' });
   }
 
-  // 搜尋文章
-  function searchArticles() {
-    const keyword = document.getElementById("search").value.toLowerCase();
-    const sidebar = document.getElementById("sidebar");
-    const links = sidebar.querySelectorAll("ul a"); // 只抓文章列表的連結
-    links.forEach((a) => {
-      const text = a.textContent.toLowerCase();
-      a.parentElement.style.display = text.includes(keyword) ? "" : "none";
-    });
-  }
+  loadPosts();
 </script>
 </body>
 </html>
