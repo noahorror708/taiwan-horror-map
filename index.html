@@ -1,31 +1,28 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>台灣恐怖地圖</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Header -->
   <div id="header"></div>
 
-  <!-- 麵包屑 -->
-  <div class="breadcrumb" id="breadcrumb">
-    <a href="#" id="breadcrumb-latest">最新文章</a>
-  </div>
-
-  <!-- 主內容區 -->
-  <div class="container">
-    <div id="article-list"></div>
-    <div id="article-detail" style="display:none;">
-      <h2 id="detail-title"></h2>
-      <p id="detail-content"></p>
-      <div id="map" style="height: 400px; margin-top: 20px;"></div>
+  <main>
+    <div class="breadcrumb" id="breadcrumb">
+      最新文章
     </div>
-  </div>
 
-  <!-- Footer -->
+    <section id="latest-articles" class="list-view"></section>
+
+    <section id="article-view" class="hidden">
+      <h2 id="article-title"></h2>
+      <p id="article-content"></p>
+      <div id="map" style="height:400px;"></div>
+    </section>
+  </main>
+
   <div id="footer"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
