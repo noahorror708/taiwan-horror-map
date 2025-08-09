@@ -1,74 +1,84 @@
-/* ===== 全局設定 ===== */
+/* 全域背景與字體 */
 body {
+  background-color: #000; /* 黑底 */
+  color: #fff; /* 白字 */
+  font-family: Arial, sans-serif;
   margin: 0;
-  font-family: sans-serif;
-  background-color: black; /* 黑底 */
-  color: white; /* 白字 */
+  padding: 0;
 }
 
-/* ===== 地圖樣式 ===== */
+/* 標題與副標題 */
+header h1 {
+  font-size: 28px;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #ccc; /* 淺灰色 */
+  margin-top: -5px;
+}
+
+/* 地圖區域 */
 #map {
-  width: 100%;
   height: 500px;
+  width: 100%;
 }
 
-/* ===== 最新文章區 ===== */
-.latest-section {
-  padding: 20px;
-}
-
-/* ===== 抽屜樣式（漢堡選單） ===== */
+/* 漢堡選單按鈕 */
 .hamburger {
-  position: fixed;
+  position: absolute;
   top: 10px;
   left: 10px;
-  font-size: 24px;
-  background: none;
+  background: transparent;
   border: none;
   color: white;
+  font-size: 24px;
+  z-index: 1001;
   cursor: pointer;
-  z-index: 1001; /* 蓋在地圖上面 */
 }
 
+/* 漢堡抽屜 */
 #city-drawer {
   position: fixed;
   top: 0;
-  left: -250px; /* 預設藏起來 */
+  left: -250px;
   width: 250px;
   height: 100%;
-  background-color: #222; /* 深灰色抽屜背景 */
+  background-color: rgba(0, 0, 0, 0.95);
   overflow-y: auto;
   transition: left 0.3s ease;
   padding: 20px;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.5);
   z-index: 1000;
 }
 
 #city-drawer.open {
-  left: 0; /* 拉出來 */
+  left: 0;
 }
 
-#city-drawer ul {
+#city-list {
   list-style: none;
   padding: 0;
 }
 
-#city-drawer li {
-  margin: 5px 0;
+#city-list li {
+  margin: 8px 0;
 }
 
-#city-drawer a {
-  color: white;
+#city-list a {
+  color: #fff;
   text-decoration: none;
 }
 
-#city-drawer a:hover {
+#city-list a:hover {
   text-decoration: underline;
 }
 
-/* ===== footer 與 header ===== */
-#header, #footer {
-  background-color: #111;
-  padding: 10px;
-  text-align: center;
+/* 最新文章區塊 */
+.latest-section {
+  padding: 20px;
+}
+
+.latest-section h2 {
+  margin-top: 0;
 }
