@@ -1,16 +1,18 @@
-// js/common.js
-async function loadHTML(id, file) {
-  try {
-    const res = await fetch(file);
-    const text = await res.text();
-    document.getElementById(id).innerHTML = text;
-  } catch (err) {
-    console.error(`載入 ${file} 失敗`, err);
-  }
-}
-
-// 頁面載入後執行
+// 載入 header 和 footer
 document.addEventListener("DOMContentLoaded", () => {
-  loadHTML("header", "header.html");
-  loadHTML("footer", "footer.html");
+  fetch("header.html")
+    .then(res => res.text())
+    .then(data => document.body.insertAdjacentHTML("afterbegin", data));
+
+  fetch("footer.html")
+    .then(res => res.text())
+    .then(data => document.body.insertAdjacentHTML("beforeend", data));
 });
+
+// 訪問統計
+fetch('https://api.countapi.xyz/hit/taiwan-horror-map/views')
+  .then(res => res.json())
+  .then(data => {
+    const el = document.getElementById("viewCount");
+    if (el) el.innerText = data.value;
+  });
