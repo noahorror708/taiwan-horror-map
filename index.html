@@ -3,152 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
-  <style>
-    body { margin:0; font-family:Arial, sans-serif; background:#111; color:#eee; }
-    h1 { text-align:center; padding:15px; background:#222; color:#ff4444; margin:0; cursor:pointer; }
-    h2 { text-align:center; margin:10px 0 20px; font-weight:normal; color:#aaa; }
-
-    .container { max-width:600px; margin:30px auto; padding:20px; background:#222; border-radius:10px; text-align: center; }
-    iframe {
-      width: 100%;
-      height: 1200px;
-      border: none;
-      border-radius: 10px;
-    }
-
-    #backButton {
-      background: #444; border: none; color: #eee; padding: 8px 12px;
-      border-radius: 8px; cursor: pointer; margin: 15px auto; display: block;
-    }
-
-    .breadcrumb {
-      text-align: center;
-      margin-top: 10px;
-      color: #888;
-    }
-    .breadcrumb a {
-      color: #66ccff;
-      text-decoration: none;
-    }
-    .breadcrumb a:hover {
-      text-decoration: underline;
-    }
-
-    #sidebar {
-      max-width: 300px;
-      background: #1a1a1a;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 20px auto;
-    }
-    #sidebar h3 {
-      color: #66ccff;
-      margin: 10px 0 5px;
-      cursor: pointer;
-    }
-    #sidebar ul {
-      list-style: none;
-      padding-left: 1em;
-      display: none;
-    }
-    #sidebar li a {
-      display: block;
-      padding: 4px 8px;
-      border-radius: 6px;
-      text-decoration: none;
-      color: #eee;
-    }
-    #sidebar li a:hover {
-      background: #333;
-    }
-    #searchBox {
-      width: 100%;
-      padding: 8px;
-      border-radius: 6px;
-      border: none;
-      margin-bottom: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
-  <h1 onclick="reloadHome()">台灣恐怖地圖</h1>
-  <h2>投稿你的靈異故事</h2>
+  <!-- Header -->
+  <div id="header"></div>
 
-  <div class="breadcrumb">
-    <a href="index.html#latest">最新文章</a> &gt; 我要投稿
+  <!-- 麵包屑 -->
+  <div class="breadcrumb" id="breadcrumb">
+    <a href="#" id="breadcrumb-latest">最新文章</a>
   </div>
 
+  <!-- 主內容區 -->
   <div class="container">
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdmLg3IRuDKCqHcuZCahYWBWzLBO0Dcz5WbsDh80MvQiHOVkQ/viewform?embedded=true" allowfullscreen></iframe>
+    <div id="article-list"></div>
+    <div id="article-detail" style="display:none;">
+      <h2 id="detail-title"></h2>
+      <p id="detail-content"></p>
+      <div id="map" style="height: 400px; margin-top: 20px;"></div>
+    </div>
   </div>
 
-  <div id="sidebar">
-    <input type="text" id="searchBox" placeholder="搜尋文章...">
-    <div id="categoryList"></div>
-  </div>
+  <!-- Footer -->
+  <div id="footer"></div>
 
-  <button id="backButton" onclick="goBackToLatest()">← 回到最新文章</button>
-
-  <script>
-    function goBackToLatest() {
-      window.location.href = "index.html#latest";
-    }
-
-    function reloadHome() {
-      window.location.href = "index.html";
-    }
-
-    const dummyPosts = [
-      { title: "八里媽媽嘴雙屍命案", region: "新北市" },
-      { title: "民雄鬼屋事件", region: "嘉義縣" },
-      { title: "基隆雨夜殺人案", region: "基隆市" },
-      { title: "台中深夜電梯靈影", region: "台中市" }
-    ];
-
-    function groupPostsByRegion(posts) {
-      const groups = {};
-      posts.forEach(post => {
-        if (!groups[post.region]) {
-          groups[post.region] = [];
-        }
-        groups[post.region].push(post);
-      });
-      return groups;
-    }
-
-    function renderSidebar(groups) {
-      const categoryList = document.getElementById("categoryList");
-      categoryList.innerHTML = "";
-
-      for (let region in groups) {
-        const wrapper = document.createElement("div");
-
-        const header = document.createElement("h3");
-        header.textContent = region + ` (${groups[region].length})`;
-
-        const list = document.createElement("ul");
-
-        header.addEventListener("click", () => {
-          list.style.display = (list.style.display === "none") ? "block" : "none";
-        });
-
-        groups[region].forEach(post => {
-          const li = document.createElement("li");
-          const a = document.createElement("a");
-          a.textContent = post.title;
-          a.href = "#";
-          li.appendChild(a);
-          list.appendChild(li);
-        });
-
-        wrapper.appendChild(header);
-        wrapper.appendChild(list);
-        categoryList.appendChild(wrapper);
-      }
-    }
-
-    const grouped = groupPostsByRegion(dummyPosts);
-    renderSidebar(grouped);
-  </script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
