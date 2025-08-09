@@ -4,27 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>台灣恐怖地圖</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- 預留 Header -->
+  <div id="header"></div>
 
-<main>
-  <div id="map"></div>
-  <div id="postListView">
-    <input type="text" id="searchBox" placeholder="搜尋文章...">
-    <div id="latestPosts"></div>
-  </div>
-  <div id="postDetailView" style="display:none;">
-    <h2 id="currentPostTitle"></h2>
-    <div id="postDetailContent"></div>
-    <button onclick="goBack()">返回列表</button>
-  </div>
-</main>
+  <main>
+    <div id="map"></div>
 
-<script src="js/common.js"></script>
-<script src="js/map.js"></script>
-<script type="module" src="js/posts.js"></script>
-<script async src="https://maps.googleapis.com/maps/api/js?key=YAIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU&callback=initMap"></script>
+    <!-- 文章列表 -->
+    <div id="postListView">
+      <input type="text" id="searchBox" placeholder="搜尋文章...">
+      <div id="latestPosts"></div>
+    </div>
 
+    <!-- 單篇文章 -->
+    <div id="postDetailView" style="display:none;">
+      <h2 id="currentPostTitle"></h2>
+      <div id="postDetailContent"></div>
+      <button onclick="goBack()">返回列表</button>
+    </div>
+  </main>
+
+  <!-- 預留 Footer -->
+  <div id="footer"></div>
+
+  <!-- JS 載入 -->
+  <script src="js/common.js"></script>
+  <script src="js/map.js"></script>
+  <script type="module" src="js/posts.js"></script>
+  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU&callback=initMap"></script>
 </body>
 </html>
