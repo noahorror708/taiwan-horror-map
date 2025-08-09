@@ -10,12 +10,17 @@
   <!-- 頁首 -->
   <div id="header"></div>
 
-  <!-- 地圖 -->
+  <!-- 漢堡按鈕 -->
   <button id="menu-toggle" class="hamburger">≡</button>
-<nav id="city-drawer">
-  <ul id="city-list"></ul>
-</nav>
-<div id="map"></div>
+
+  <!-- 抽屜分類 -->
+  <nav id="city-drawer" class="drawer">
+    <h3>按縣市分類</h3>
+    <ul id="city-list"></ul>
+  </nav>
+
+  <!-- 地圖 -->
+  <div id="map"></div>
 
   <!-- 最新文章 -->
   <section class="latest-section">
@@ -23,15 +28,10 @@
     <ul id="latest-articles"></ul>
   </section>
 
-  <!-- 抽屜分類 -->
-  <div id="drawer" class="drawer">
-    <h3>按縣市分類</h3>
-    <ul id="city-list"></ul>
-  </div>
-
   <!-- 頁尾 -->
   <div id="footer"></div>
 
+  <!-- 外部 JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
