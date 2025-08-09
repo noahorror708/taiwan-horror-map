@@ -30,6 +30,7 @@
       max-height: 30%;
       overflow-y: auto;
       padding: 10px;
+      display: none; /* 預設隱藏 */
     }
     .postCard {
       margin-bottom: 10px;
@@ -65,9 +66,7 @@
 <body>
   <div id="sidebar"></div>
   <div id="map"></div>
-  <div id="postDisplay">
-    <p>點選左側文章或地圖標記以查看內容</p>
-  </div>
+  <div id="postDisplay"></div>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM"></script>
   <script type="module">
@@ -159,6 +158,7 @@
           <p><b>地點：</b>${post.locationName}</p>
         </div>
       `;
+      container.style.display = "block"; // 顯示欄位
 
       if (post.coordinates) {
         let pos = {
