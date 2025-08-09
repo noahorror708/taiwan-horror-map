@@ -1,60 +1,32 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
   <title>台灣恐怖地圖</title>
-
-  <!-- 站台樣式 -->
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Leaflet 樣式（地圖） -->
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <!-- header 會由 main.js fetch('header.html') 載入 -->
-  <div id="header-container"></div>
+  <div id="header"></div>
 
-  <!-- 麵包屑 -->
   <div class="breadcrumb" id="breadcrumb">
-    <a href="#" id="breadcrumb-home">最新文章</a>
+    <a href="#latest">最新文章</a>
   </div>
 
-  <!-- 主要區塊：左側分類/文章清單，右側地圖與文章內容 -->
-  <div class="layout">
-    <!-- 側欄：搜尋、分類與文章清單 -->
-    <aside id="sidebar">
-      <input id="searchBox" type="text" placeholder="搜尋文章或地點..." />
-      <div id="categoryList" class="category-list"></div>
-      <div id="latestList" class="article-list"></div>
-    </aside>
+  <div id="map"></div>
 
-    <!-- 主內容：地圖 + 單篇文章區 -->
-    <main id="main-content">
-      <div id="map"></div>
-
-      <!-- 文章清單（手機或切回列表視圖時可見） -->
-      <section id="post-list" class="article-list"></section>
-
-      <!-- 單篇文章檢視（預設隱藏） -->
-      <section id="post-detail" class="article-content hidden">
-        <button id="backToList" class="btn">← 回到清單</button>
-        <div id="post-breadcrumb" class="breadcrumb"></div>
-        <h2 id="detail-title"></h2>
-        <p id="detail-location" class="muted"></p>
-        <div id="detail-body"></div>
-      </section>
-    </main>
+  <div id="content">
+    <h2>最新文章</h2>
+    <ul id="postList"></ul>
   </div>
 
-  <!-- footer 會由 main.js fetch('footer.html') 載入 -->
-  <div id="footer-container"></div>
+  <div id="footer"></div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <!-- 你的主程式（會載入 header/footer、撈 Firestore、畫地圖、handle UI） -->
   <script src="main.js"></script>
 </body>
 </html>
-
