@@ -1,44 +1,51 @@
+/* ===== 全局設定 ===== */
 body {
   margin: 0;
   font-family: sans-serif;
-  background-color: #000; /* 背景改黑色 */
-  color: #fff; /* 字體白色 */
+  background-color: black; /* 黑底 */
+  color: white; /* 白字 */
 }
 
-/* 地圖全寬 */
+/* ===== 地圖樣式 ===== */
 #map {
-  height: 500px;
   width: 100%;
+  height: 500px;
 }
 
-/* 最新文章 */
+/* ===== 最新文章區 ===== */
 .latest-section {
-  padding: 1em;
-}
-.latest-section ul {
-  list-style: none;
-  padding: 0;
-}
-.latest-section li {
-  margin-bottom: 5px;
+  padding: 20px;
 }
 
-/* 抽屜 */
+/* ===== 抽屜樣式（漢堡選單） ===== */
+.hamburger {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  z-index: 1001; /* 蓋在地圖上面 */
+}
+
 #city-drawer {
   position: fixed;
   top: 0;
-  left: -250px; /* 初始隱藏 */
+  left: -250px; /* 預設藏起來 */
   width: 250px;
   height: 100%;
-  background-color: #111; /* 深色抽屜 */
+  background-color: #222; /* 深灰色抽屜背景 */
   overflow-y: auto;
   transition: left 0.3s ease;
-  padding: 1rem;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.5);
   z-index: 1000;
 }
 
 #city-drawer.open {
-  left: 0; /* 開啟時滑出 */
+  left: 0; /* 拉出來 */
 }
 
 #city-drawer ul {
@@ -47,23 +54,21 @@ body {
 }
 
 #city-drawer li {
-  padding: 0.5rem 0;
+  margin: 5px 0;
 }
 
 #city-drawer a {
-  color: #fff;
+  color: white;
   text-decoration: none;
 }
 
-/* 漢堡按鈕 */
-.hamburger {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 2rem;
-  z-index: 1100;
-  cursor: pointer;
+#city-drawer a:hover {
+  text-decoration: underline;
+}
+
+/* ===== footer 與 header ===== */
+#header, #footer {
+  background-color: #111;
+  padding: 10px;
+  text-align: center;
 }
