@@ -1,7 +1,7 @@
-// Firebase 初始化
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// Firebase 設定
 const firebaseConfig = {
   apiKey: "AIzaSyBml-6f_zdAQQil96A-2QkuXv-M2hwcZnI",
   authDomain: "maptest-f6f6c.firebaseapp.com",
@@ -13,7 +13,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// DOM 元素
+// DOM
 const latestPostsEl = document.getElementById("latestPosts");
 const postListView = document.getElementById("postListView");
 const postDetailView = document.getElementById("postDetailView");
@@ -21,18 +21,11 @@ const postDetailContent = document.getElementById("postDetailContent");
 const currentPostTitle = document.getElementById("currentPostTitle");
 const searchBox = document.getElementById("searchBox");
 
-// 回到列表並重新載入最新文章
+// 回到列表
 window.goBack = function () {
   postDetailView.style.display = "none";
   postListView.style.display = "block";
-  loadLatestPosts();
-
-  const latestEl = document.getElementById("latest");
-  if (latestEl) {
-    latestEl.scrollIntoView({ behavior: 'smooth' });
-  } else {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 // 載入最新文章
@@ -62,7 +55,10 @@ window.viewPost = async function (id) {
   if (docSnap.exists()) {
     const data = docSnap.data();
     currentPostTitle.textContent = data.title;
-    postDetailContent.innerHTML = `<h2>${data.title}</h2><p>${data.content}</p>`;
+    postDetailContent.innerHTML = `
+      <h2>${data.title}</h2>
+      <p>${data.content}</p>
+    `;
     postListView.style.display = "none";
     postDetailView.style.display = "block";
     window.scrollTo({ top: 0, behavior: "smooth" });
