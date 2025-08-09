@@ -8,7 +8,7 @@ fetch("footer.html").then(res => res.text()).then(html => {
 
 // Firebase 初始化
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
   authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
   projectId: "taiwan-horror-map-e257d",
 };
