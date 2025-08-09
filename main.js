@@ -29,15 +29,15 @@ const cityOrder = [
   "花蓮縣", "臺東縣", "金門縣", "連江縣"
 ];
 
-// 從 Firestore 抓資料（posts 集合）
-db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
+// 抓 Firestore 資料
+db.collection("articles").orderBy("timestamp", "desc").get().then(snapshot => {
   const latestList = document.getElementById("latest-articles");
   const cityMap = {};
 
   snapshot.forEach(doc => {
     const data = doc.data();
 
-    // === 最新文章清單 ===
+    // 最新文章清單
     const li = document.createElement("li");
     const a = document.createElement("a");
     a.textContent = data.title;
@@ -45,7 +45,7 @@ db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
     li.appendChild(a);
     latestList.appendChild(li);
 
-    // === 地圖標記 + 半徑圈 ===
+    // 地圖標記
     if (data.coordinates) {
       const marker = L.marker(data.coordinates).addTo(map);
       L.circle(data.coordinates, {
@@ -57,7 +57,7 @@ db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
       marker.bindPopup(`<b>${data.title}</b><br>${data.locationName}`);
     }
 
-    // === 縣市分類 ===
+    // 縣市分類
     if (data.locationName) {
       const city = cityOrder.find(c => data.locationName.startsWith(c));
       if (city) {
@@ -67,7 +67,7 @@ db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
     }
   });
 
-  // === 抽屜縣市清單 ===
+  // 抽屜縣市清單
   const cityListEl = document.getElementById("city-list");
   cityOrder.forEach(city => {
     if (cityMap[city]) {
@@ -86,4 +86,9 @@ db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
       cityListEl.appendChild(li);
     }
   });
+});
+
+// 漢堡選單控制
+document.getElementById("menu-toggle").addEventListener("click", () => {
+  document.getElementById("city-drawer").classList.toggle("open");
 });
