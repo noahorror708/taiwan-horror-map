@@ -32,19 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 讀取 Firestore
   db.collection("articles").orderBy("timestamp", "desc").get().then(snapshot => {
-    const latestList = document.getElementById("latest-articles");
     const cityMap = {};
 
     snapshot.forEach(doc => {
       const data = doc.data();
-
-      // 最新文章
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      a.textContent = data.title;
-      a.href = `article.html?id=${doc.id}`;
-      li.appendChild(a);
-      latestList.appendChild(li);
 
       // 地圖標記
       if (data.coordinates) {
