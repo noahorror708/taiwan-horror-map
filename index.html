@@ -1,28 +1,36 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 </head>
 <body>
-  <div id="header-container"></div>
+  <!-- 頁首 -->
+  <div id="header"></div>
 
-  <main>
-    <section id="latest" class="article-list">
-      <h2>最新文章</h2>
-      <div id="latest-articles"></div>
-    </section>
-  </main>
+  <!-- 地圖 -->
+  <div id="map"></div>
 
-  <div id="footer-container"></div>
+  <!-- 最新文章 -->
+  <section class="latest-section">
+    <h2>最新文章</h2>
+    <ul id="latest-articles"></ul>
+  </section>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+  <!-- 抽屜分類 -->
+  <div id="drawer" class="drawer">
+    <h3>按縣市分類</h3>
+    <ul id="city-list"></ul>
+  </div>
+
+  <!-- 頁尾 -->
+  <div id="footer"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
   <script src="main.js"></script>
-  <script>
-    loadHTML('header.html', '#header-container');
-    loadHTML('footer.html', '#footer-container');
-  </script>
 </body>
 </html>
