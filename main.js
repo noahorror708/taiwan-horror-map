@@ -10,7 +10,7 @@ fetch("footer.html").then(res => res.text()).then(html => {
 
 // 初始化 Firebase
 firebase.initializeApp({
-  apiKey: "AIzaSy....", // 你的 API Key
+  apiKey: "AIzaSy....", //AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU
   authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
   projectId: "taiwan-horror-map-e257d"
 });
