@@ -1,7 +1,7 @@
+// Firebase 初始化
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase 初始化
 const firebaseConfig = {
   apiKey: "AIzaSyBml-6f_zdAQQil96A-2QkuXv-M2hwcZnI",
   authDomain: "maptest-f6f6c.firebaseapp.com",
@@ -21,18 +21,19 @@ const postDetailContent = document.getElementById("postDetailContent");
 const currentPostTitle = document.getElementById("currentPostTitle");
 const searchBox = document.getElementById("searchBox");
 
-// 回到列表
+// 回到列表並重新載入最新文章
 window.goBack = function () {
   postDetailView.style.display = "none";
   postListView.style.display = "block";
-
-  // 重新載入最新文章
   loadLatestPosts();
 
-  // 平滑滾動到最新文章標題
-  document.getElementById("latest").scrollIntoView({ behavior: 'smooth' });
+  const latestEl = document.getElementById("latest");
+  if (latestEl) {
+    latestEl.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 };
-
 
 // 載入最新文章
 async function loadLatestPosts() {
