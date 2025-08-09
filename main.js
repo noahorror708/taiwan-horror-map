@@ -10,7 +10,7 @@ function loadHTML(url, selector) {
 
 // 初始化 Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyXXXXXXX",
+  apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
   authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
   projectId: "taiwan-horror-map-e257d",
 };
