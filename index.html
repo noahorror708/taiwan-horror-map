@@ -60,8 +60,8 @@
   </style>
 </head>
 <body>
-  <h1 onclick="location.reload()">台灣恐怖地圖</h1>
-  <h2>蒐集台灣各地流傳的靈異故事與都市傳說</h2>
+  <!-- 動態載入 header -->
+  <div id="header"></div>
 
   <div id="container">
     <div id="sidebar">
@@ -94,11 +94,8 @@
     <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="回到頂端">
   </button>
 
-  <!-- 頁尾 -->
-  <footer>
-    聯絡信箱：noahorror708@gmail.com ｜ 本網站僅提供故事分享，內容不代表真實事件。<br>
-    © 2025 台灣恐怖地圖 All Rights Reserved.
-  </footer>
+  <!-- 動態載入 footer -->
+  <div id="footer"></div>
 
   <!-- Google Maps -->
   <script>
@@ -113,6 +110,17 @@
   </script>
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
+  </script>
+
+  <!-- 載入 header & footer -->
+  <script>
+    async function loadHTML(id, file) {
+      const res = await fetch(file);
+      const text = await res.text();
+      document.getElementById(id).innerHTML = text;
+    }
+    loadHTML("header", "header.html");
+    loadHTML("footer", "footer.html");
   </script>
 
   <!-- Firebase -->
