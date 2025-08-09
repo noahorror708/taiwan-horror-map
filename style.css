@@ -1,39 +1,34 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <title>台灣恐怖地圖</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-</head>
-<body>
-  <!-- 頁首 -->
-  <header>
-    <h1>台灣恐怖地圖</h1>
-    <p class="subtitle">探索全台驚悚與靈異故事</p>
-  </header>
+body {
+  background: #111;
+  color: #eee;
+  font-family: "Noto Sans TC", sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.8;
+}
 
-  <!-- 漢堡按鈕 -->
-  <button id="menu-toggle" class="hamburger">≡</button>
+nav {
+  background: #222;
+  padding: 1rem;
+  text-align: center;
+}
+nav a {
+  color: #ff6666;
+  margin: 0 1rem;
+  text-decoration: none;
+}
+nav a:hover {
+  text-decoration: underline;
+}
 
-  <!-- 抽屜 -->
-  <nav id="city-drawer">
-    <ul id="city-list"></ul>
-  </nav>
+header {
+  text-align: center;
+  padding: 2rem;
+}
 
-  <!-- 地圖 -->
-  <div id="map"></div>
-
-  <!-- 最新文章 -->
-  <section class="latest-section">
-    <h2>最新文章</h2>
-    <ul id="latest-articles"></ul>
-  </section>
-
-  <!-- Firebase & Leaflet -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="main.js"></script>
-</body>
-</html>
+.story {
+  background: #222;
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 10px;
+}
