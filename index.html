@@ -15,6 +15,10 @@
     }
 
     /* 標題與副標題 */
+    header {
+      padding: 15px;
+    }
+
     header h1 {
       font-size: 28px;
       margin: 0;
@@ -109,7 +113,11 @@
   </style>
 </head>
 <body>
-
+  <!-- 頁首（直接內嵌，不再載入 header.html） -->
+  <header>
+    <h1>台灣恐怖地圖</h1>
+    <div class="subtitle">探索台灣的都市傳說與恐怖故事</div>
+  </header>
 
   <!-- 地圖 -->
   <button id="menu-toggle" class="hamburger">≡</button>
@@ -124,18 +132,23 @@
     <ul id="latest-articles"></ul>
   </section>
 
+  <!-- 頁尾（直接內嵌，不再載入 footer.html） -->
+  <footer style="text-align:center; padding:10px; font-size:14px; color:#888;">
+    © 2025 台灣恐怖地圖
+  </footer>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
   <script>
     // ===================== Firebase 初始化 =====================
     const firebaseConfig = {
-  apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
-  authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
-  projectId: "taiwan-horror-map-e257d",
-  storageBucket: "taiwan-horror-map-e257d.firebasestorage.app",
-  messagingSenderId: "59145752144",
-  appId: "1:59145752144:web:1f6ccc6fecd280defc8b55"
+      apiKey: "你的API_KEY",
+      authDomain: "你的專案.firebaseapp.com",
+      projectId: "你的專案ID",
+      storageBucket: "你的專案.appspot.com",
+      messagingSenderId: "發送者ID",
+      appId: "APP_ID"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -197,7 +210,7 @@
           if (data.lat && data.lng) {
             L.marker([data.lat, data.lng])
               .addTo(map)
-              .bindPopup(`<b>${data.title}</b><br>${data.locationName}`);
+              .bindPopup(`<b>${data.title}</b><br>${data.locationName || ""}`);
           }
         });
       } catch (error) {
