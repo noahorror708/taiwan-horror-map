@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
-  <link rel="stylesheet" href="style.css">
+  <!-- 共用 CSS -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <!-- 共用 header -->
   <div id="header"></div>
 
-  <!-- 原本的內容 -->
+  <!-- 主內容 -->
   <div id="container">
     <div id="sidebar">
       <input type="text" id="searchBox" placeholder="搜尋文章...">
@@ -19,15 +20,12 @@
     <div id="map"></div>
   </div>
 
-  <!-- 文章區塊 -->
   <div id="postArea">
-    <!-- 清單列表 -->
     <div id="postListView">
       <h2 id="latest">最新文章</h2>
       <div id="latestPosts"></div>
     </div>
 
-    <!-- 單篇文章詳細 -->
     <div id="postDetailView" style="display:none;">
       <div class="breadcrumb" id="postBreadcrumb">
         <a href="#" onclick="goBack()">最新文章</a> &gt; <span id="currentPostTitle">文章標題</span>
@@ -36,7 +34,6 @@
     </div>
   </div>
 
-  <!-- 回到頂端 -->
   <button id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'});">
     <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="回到頂端">
   </button>
@@ -44,10 +41,10 @@
   <!-- 共用 footer -->
   <div id="footer"></div>
 
-  <!-- 先載入共用 JS -->
+  <!-- 共用 JS -->
   <script src="js/common.js"></script>
 
-  <!-- 其他地圖、Firebase 等 JS -->
+  <!-- Google Maps -->
   <script>
     let map;
     function initMap() {
@@ -61,8 +58,10 @@
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=你的API_KEY&callback=initMap">
   </script>
+
+  <!-- Firebase 相關 -->
   <script type="module">
-    // 原本的 Firebase 文章載入程式...
+    // 你的 Firebase 載入文章程式碼...
   </script>
 </body>
 </html>
