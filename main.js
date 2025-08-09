@@ -3,55 +3,61 @@ const PROJECT_ID = "你的專案ID";
 const COLLECTION = "posts";
 const API_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION}`;
 
-// Leaflet 地圖初始化
-let map = L.map('map').setView([23.6978, 120.9605], 8);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
-}).addTo(map);
-
-let markers = [];
-
-// 讀取文章列表
-async function fetchPosts() {
-  try {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    if (!data.documents) return;
-
-    const listContainer = document.querySelector(".article-list");
-    listContainer.innerHTML = "";
-
-    data.documents.forEach(doc => {
-      const fields = doc.fields;
-      const item = document.createElement("div");
-      item.className = "article-item";
-      item.innerHTML = `
-        <div class="article-title">${fields.title.stringValue}</div>
-        <div class="article-location">${fields.locationName.stringValue}</div>
-      `;
-      item.addEventListener("click", () => showArticle(fields));
-      listContainer.appendChild(item);
-
-      // 標記地圖範圍（500m 半徑）
-      const coords = fields.coordinates.geoPointValue;
-      const lat = coords.latitude;
-      const lng = coords.longitude;
-
-      const circle = L.circle([lat, lng], {
-        color: '#ff4444',
-        fillColor: '#ff6666',
-        fillOpacity: 0.3,
-        radius: 500
-      }).addTo(map);
-
-      markers.push(circle);
-    });
-  } catch (err) {
-    console.error("讀取文章錯誤：", err);
+// 頁面初始化
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("articleList")) {
+    loadLatestArticles();
   }
+  if (document.getElementById("map")) {
+    initMap();
+  }
+});
+
+// 載入最新文章
+function loadLatestArticles() {
+  fetch(API_URL)
+    .then(res => res.json())
+    .then(data => {
+      const listContainer = document.getElementById("articleList");
+      listContainer.innerHTML = "";
+
+      if (!data.documents) {
+        listContainer.innerHTML = "<p>目前沒有文章。</p>";
+        return;
+      }
+
+      data.documents.forEach(doc => {
+        const fields = doc.fields;
+        const card = document.createElement("div");
+        card.className = "article-card";
+        card.innerHTML = `
+          <h3>${fields.title.stringValue}</h3>
+          <p>${fields.locationName.stringValue}</p>
+        `;
+        card.addEventListener("click", () => {
+          showArticle(fields);
+        });
+        listContainer.appendChild(card);
+      });
+    })
+    .catch(err => {
+      console.error(err);
+    });
 }
 
-// 顯示文章內容
+// 顯示單篇文章
 function showArticle(fields) {
-  document.querySelector(".article-list").style.display = "none";
-  const articleContainer = document.querySelec
+  const listContainer = document.getElementById("articleList");
+  listContainer.innerHTML = `
+    <div class="breadcrumb">
+      <a href="#" onclick="loadLatestArticles(); return false;">最新文章</a> &gt; ${fields.title.stringValue}
+    </div>
+    <h2>${fields.title.stringValue}</h2>
+    <p><em>${fields.locationName.stringValue}</em></p>
+    <p>${fields.content.stringValue}</p>
+    <div id="map"></div>
+  `;
+
+  // 初始化地圖並顯示範圍
+  setTimeout(() => {
+    in
