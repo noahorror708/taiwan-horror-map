@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -145,6 +144,12 @@
 
       snap.forEach(doc => {
         const data = doc.data();
+
+        // 處理 createdAt
+        if (data.createdAt && data.createdAt.toDate) {
+          data.createdAt = data.createdAt.toDate();
+        }
+
         let region = data.locationName || "未分類";
         if (!groups[region]) groups[region] = [];
         groups[region].push({ id: doc.id, ...data });
@@ -157,10 +162,10 @@
 
     function renderSidebar(groups) {
       const sidebar = document.getElementById("sidebar");
-      sidebar.innerHTML = 
+      sidebar.innerHTML = `
         <input type="text" id="searchBox" placeholder="搜尋文章...">
         <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
-      ;
+      `;
 
       for (let region in groups) {
         let h3 = document.createElement("h3");
@@ -199,7 +204,10 @@
         let card = document.createElement("div");
         card.className = "postCard";
         card.style.cursor = "pointer";
-        card.innerHTML = <h3>${post.title}</h3><p>${post.content.substring(0,100)}...</p>;
+        card.innerHTML = `
+          <h3>${post.title}</h3>
+          <p>${(post.content || "").substring(0,100)}...</p>
+        `;
         card.onclick = () => showPost(post);
         latestDiv.appendChild(card);
       });
@@ -211,13 +219,13 @@
       document.getElementById("currentPostTitle").innerText = post.title;
 
       const detail = document.getElementById("postDetailContent");
-      detail.innerHTML = 
+      detail.innerHTML = `
         <div class="postCard">
           <h3>${post.title}</h3>
           <p>${post.content}</p>
           <p><b>地點：</b>${post.locationName}</p>
         </div>
-      ;
+      `;
 
       if (post.coordinates) {
         let pos = {
