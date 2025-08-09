@@ -1,80 +1,77 @@
-// 載入 header & footer
-fetch("header.html").then(res => res.text()).then(html => {
-  document.getElementById("header").innerHTML = html;
-  document.getElementById("siteTitle").onclick = () => location.reload();
-  document.getElementById("homeLink").onclick = () => showLatest();
-});
-fetch("footer.html").then(res => res.text()).then(html => {
-  document.getElementById("footer").innerHTML = html;
-});
+// 載入 HTML 模板
+function loadHTML(url, selector) {
+  fetch(url)
+    .then(res => res.text())
+    .then(html => document.querySelector(selector).innerHTML = html)
+    .then(() => {
+      if (url === 'header.html') initDrawer();
+    });
+}
 
 // 初始化 Firebase
-firebase.initializeApp({
-  apiKey: "AIzaSy....", //AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU
+const firebaseConfig = {
+  apiKey: "AIzaSyXXXXXXX",
   authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
-  projectId: "taiwan-horror-map-e257d"
-});
+  projectId: "taiwan-horror-map-e257d",
+};
+const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Leaflet 地圖
-const map = L.map("map").setView([23.6978, 120.9605], 8);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap"
-}).addTo(map);
-
-let markers = [];
-
-// 顯示最新文章
-function showLatest() {
-  document.getElementById("breadcrumb").innerHTML = `<a href="#latest">最新文章</a>`;
-  document.getElementById("content").innerHTML = `<h2>最新文章</h2><ul id="postList"></ul>`;
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
-
-  db.collection("posts").orderBy("createdAt", "desc").get().then(snapshot => {
-    const list = document.getElementById("postList");
-    snapshot.forEach(doc => {
-      const post = doc.data();
-      const li = document.createElement("li");
-      li.textContent = post.title;
-      li.onclick = () => showPost(post);
-      list.appendChild(li);
-
-      // 標記點位 + 半徑
-      const marker = L.marker(post.coordinates).addTo(map);
-      const circle = L.circle(post.coordinates, {
-        radius: 500,
-        color: "red",
-        fillColor: "#f03",
-        fillOpacity: 0.2
-      }).addTo(map);
-      markers.push(marker, circle);
-    });
+// 抽屜功能
+function initDrawer() {
+  const toggleBtn = document.getElementById('drawer-toggle');
+  const drawer = document.getElementById('drawer');
+  toggleBtn.addEventListener('click', () => {
+    drawer.classList.toggle('open');
   });
 }
 
-// 顯示單篇文章
-function showPost(post) {
-  document.getElementById("breadcrumb").innerHTML =
-    `<a href="#latest" onclick="showLatest()">最新文章</a> > ${post.title}`;
-  document.getElementById("content").innerHTML = `
-    <h2>${post.title}</h2>
-    <p><em>${post.locationName}</em></p>
-    <p>${post.content}</p>
-  `;
+// 北到南縣市排序
+const cityOrder = [
+  "臺北市", "新北市", "基隆市", "新竹市", "桃園市", "新竹縣", "宜蘭縣",
+  "臺中市", "苗栗縣", "彰化縣", "南投縣", "雲林縣",
+  "高雄市", "臺南市", "嘉義市", "嘉義縣", "屏東縣", "澎湖縣",
+  "花蓮縣", "臺東縣", "金門縣", "連江縣"
+];
 
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
+// 從 Firestore 抓資料
+function loadArticles() {
+  db.collection("articles")
+    .orderBy("timestamp", "desc")
+    .get()
+    .then(snapshot => {
+      const latestContainer = document.getElementById('latest-articles');
+      const cityMap = {};
 
-  const marker = L.marker(post.coordinates).addTo(map);
-  const circle = L.circle(post.coordinates, {
-    radius: 500,
-    color: "red",
-    fillColor: "#f03",
-    fillOpacity: 0.2
-  }).addTo(map);
-  markers.push(marker, circle);
-  map.setView(post.coordinates, 15);
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const city = cityOrder.find(c => data.locationName.includes(c));
+        if (!cityMap[city]) cityMap[city] = [];
+        cityMap[city].push(data);
+
+        // 最新文章顯示
+        const articleEl = document.createElement('div');
+        articleEl.className = 'article-item';
+        articleEl.innerHTML = `<a href="article.html?id=${doc.id}">${data.title}</a>`;
+        latestContainer.appendChild(articleEl);
+      });
+
+      // 建立縣市分類
+      const cityListEl = document.getElementById('city-list');
+      cityOrder.forEach(city => {
+        if (cityMap[city]) {
+          const cityHeader = document.createElement('h3');
+          cityHeader.textContent = city;
+          cityListEl.appendChild(cityHeader);
+          cityMap[city].forEach(article => {
+            const link = document.createElement('a');
+            link.href = `article.html?id=${article.id}`;
+            link.textContent = article.title;
+            cityListEl.appendChild(link);
+          });
+        }
+      });
+    });
 }
 
-showLatest();
+document.addEventListener("DOMContentLoaded", loadArticles);
