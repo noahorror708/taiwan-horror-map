@@ -124,131 +124,176 @@
   </script>
 
   <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
-      authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
-      projectId: "taiwan-horror-map-e257d"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyCK8DBDjoj5pZg3vaGtktVyUuWOPUxDumU",
+    authDomain: "taiwan-horror-map-e257d.firebaseapp.com",
+    projectId: "taiwan-horror-map-e257d"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    async function loadPosts() {
-      const snap = await getDocs(collection(db, "posts"));
-      let groups = {};
-      let allPosts = [];
+  let markers = [];
+  let allPosts = [];
 
-      snap.forEach(doc => {
-        const data = doc.data();
+  async function loadPosts() {
+    const snap = await getDocs(collection(db, "posts"));
+    let groups = {};
 
-        // 處理 createdAt
-        if (data.createdAt && data.createdAt.toDate) {
-          data.createdAt = data.createdAt.toDate();
-        }
+    allPosts = []; // 重設文章清單
 
-        let region = data.locationName || "未分類";
-        if (!groups[region]) groups[region] = [];
-        groups[region].push({ id: doc.id, ...data });
-        allPosts.push({ id: doc.id, ...data });
-      });
+    snap.forEach(doc => {
+      const data = doc.data();
 
-      renderSidebar(groups);
-      renderLatest(allPosts);
-    }
-
-    function renderSidebar(groups) {
-      const sidebar = document.getElementById("sidebar");
-      sidebar.innerHTML = `
-        <input type="text" id="searchBox" placeholder="搜尋文章...">
-        <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
-      `;
-
-      for (let region in groups) {
-        let h3 = document.createElement("h3");
-        h3.innerText = region;
-        sidebar.appendChild(h3);
-
-        let ul = document.createElement("ul");
-        groups[region].forEach(post => {
-          let li = document.createElement("li");
-          let a = document.createElement("a");
-          a.innerText = post.title;
-          a.href = "#";
-          a.onclick = () => showPost(post);
-          li.appendChild(a);
-          ul.appendChild(li);
-        });
-        sidebar.appendChild(ul);
+      if (data.createdAt && data.createdAt.toDate) {
+        data.createdAt = data.createdAt.toDate();
       }
 
-      document.getElementById("searchBox").addEventListener("input", e => {
-        const keyword = e.target.value.toLowerCase();
-        const links = sidebar.querySelectorAll("a");
-        links.forEach(link => {
-          link.style.display = link.innerText.toLowerCase().includes(keyword) ? "block" : "none";
-        });
+      let region = data.locationName || "未分類";
+      if (!groups[region]) groups[region] = [];
+      groups[region].push({ id: doc.id, ...data });
+      allPosts.push({ id: doc.id, ...data });
+    });
+
+    renderSidebar(groups);
+    renderLatest(allPosts);
+
+    // 初始化時先顯示範圍內的標記
+    updateMarkersByBounds();
+
+    // 地圖移動或縮放結束後更新標記
+    map.addListener("idle", updateMarkersByBounds);
+  }
+
+  function renderSidebar(groups) {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.innerHTML = `
+      <input type="text" id="searchBox" placeholder="搜尋文章...">
+      <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
+    `;
+
+    for (let region in groups) {
+      let h3 = document.createElement("h3");
+      h3.innerText = region;
+      sidebar.appendChild(h3);
+
+      let ul = document.createElement("ul");
+      groups[region].forEach(post => {
+        let li = document.createElement("li");
+        let a = document.createElement("a");
+        a.innerText = post.title;
+        a.href = "#";
+        a.onclick = () => showPost(post);
+        li.appendChild(a);
+        ul.appendChild(li);
       });
+      sidebar.appendChild(ul);
     }
 
-    function renderLatest(posts) {
-      posts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-      const latest = posts.slice(0,3);
-      const latestDiv = document.getElementById("latestPosts");
-      latestDiv.innerHTML = "";
-
-      latest.forEach(post => {
-        let card = document.createElement("div");
-        card.className = "postCard";
-        card.style.cursor = "pointer";
-        card.innerHTML = `
-          <h3>${post.title}</h3>
-          <p>${(post.content || "").substring(0,100)}...</p>
-        `;
-        card.onclick = () => showPost(post);
-        latestDiv.appendChild(card);
+    document.getElementById("searchBox").addEventListener("input", e => {
+      const keyword = e.target.value.toLowerCase();
+      const links = sidebar.querySelectorAll("a");
+      links.forEach(link => {
+        link.style.display = link.innerText.toLowerCase().includes(keyword) ? "block" : "none";
       });
-    }
+    });
+  }
 
-    function showPost(post) {
-      document.getElementById("postListView").style.display = "none";
-      document.getElementById("postDetailView").style.display = "block";
-      document.getElementById("currentPostTitle").innerText = post.title;
+  function renderLatest(posts) {
+    posts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const latest = posts.slice(0,3);
+    const latestDiv = document.getElementById("latestPosts");
+    latestDiv.innerHTML = "";
 
-      const detail = document.getElementById("postDetailContent");
-      detail.innerHTML = `
-        <div class="postCard">
-          <h3>${post.title}</h3>
-          <p>${post.content}</p>
-          <p><b>地點：</b>${post.locationName}</p>
-        </div>
+    latest.forEach(post => {
+      let card = document.createElement("div");
+      card.className = "postCard";
+      card.style.cursor = "pointer";
+      card.innerHTML = `
+        <h3>${post.title}</h3>
+        <p>${(post.content || "").substring(0,100)}...</p>
       `;
+      card.onclick = () => showPost(post);
+      latestDiv.appendChild(card);
+    });
+  }
 
+  // 更新地圖範圍內的標記
+  function updateMarkersByBounds() {
+    if (!map.getBounds()) return; // 地圖尚未初始化完成
+    clearMarkers();
+
+    const bounds = map.getBounds();
+    allPosts.forEach(post => {
       if (post.coordinates) {
-        let pos = {
-          lat: post.coordinates.latitude,
-          lng: post.coordinates.longitude
-        };
-        map.setCenter(pos);
-        map.setZoom(14);
-        new google.maps.Marker({ position: pos, map: map, title: post.title });
-      } else {
-        alert("此文章尚未提供座標");
+        let pos = new google.maps.LatLng(post.coordinates.latitude, post.coordinates.longitude);
+        if (bounds.contains(pos)) {
+          addMarker(post);
+        }
       }
+    });
+  }
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  function addMarker(post) {
+    let pos = {
+      lat: post.coordinates.latitude,
+      lng: post.coordinates.longitude
+    };
+    let marker = new google.maps.Marker({
+      position: pos,
+      map: map,
+      title: post.title
+    });
+    marker.addListener("click", () => {
+      showPost(post);
+    });
+    markers.push(marker);
+  }
+
+  function clearMarkers() {
+    markers.forEach(m => m.setMap(null));
+    markers = [];
+  }
+
+  function showPost(post) {
+    document.getElementById("postListView").style.display = "none";
+    document.getElementById("postDetailView").style.display = "block";
+    document.getElementById("currentPostTitle").innerText = post.title;
+
+    const detail = document.getElementById("postDetailContent");
+    detail.innerHTML = `
+      <div class="postCard">
+        <h3>${post.title}</h3>
+        <p>${post.content}</p>
+        <p><b>地點：</b>${post.locationName}</p>
+      </div>
+    `;
+
+    if (post.coordinates) {
+      let pos = {
+        lat: post.coordinates.latitude,
+        lng: post.coordinates.longitude
+      };
+      map.setCenter(pos);
+      map.setZoom(14);
+    } else {
+      alert("此文章尚未提供座標");
     }
 
-    function goBack() {
-      document.getElementById("postDetailView").style.display = "none";
-      document.getElementById("postListView").style.display = "block";
-      document.getElementById("map").scrollIntoView({ behavior: 'smooth' });
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-    loadPosts();
-  </script>
+  function goBack() {
+    document.getElementById("postDetailView").style.display = "none";
+    document.getElementById("postListView").style.display = "block";
+    document.getElementById("map").scrollIntoView({ behavior: 'smooth' });
+  }
+
+  loadPosts();
+</script>
 </body>
 </html>
