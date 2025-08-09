@@ -4,29 +4,25 @@
   <meta charset="UTF-8" />
   <title>台灣恐怖地圖</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div id="header"></div>
+  <div id="header-container"></div>
 
-  <div class="breadcrumb" id="breadcrumb">
-    <a href="#latest">最新文章</a>
-  </div>
+  <main>
+    <section id="latest" class="article-list">
+      <h2>最新文章</h2>
+      <div id="latest-articles"></div>
+    </section>
+  </main>
 
-  <div id="map"></div>
+  <div id="footer-container"></div>
 
-  <div id="content">
-    <h2>最新文章</h2>
-    <ul id="postList"></ul>
-  </div>
-
-  <div id="footer"></div>
-
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
   <script src="main.js"></script>
+  <script>
+    loadHTML('header.html', '#header-container');
+    loadHTML('footer.html', '#footer-container');
+  </script>
 </body>
 </html>
