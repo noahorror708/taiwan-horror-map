@@ -25,8 +25,14 @@ const searchBox = document.getElementById("searchBox");
 window.goBack = function () {
   postDetailView.style.display = "none";
   postListView.style.display = "block";
-  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  // 重新載入最新文章
+  loadLatestPosts();
+
+  // 平滑滾動到最新文章標題
+  document.getElementById("latest").scrollIntoView({ behavior: 'smooth' });
 };
+
 
 // 載入最新文章
 async function loadLatestPosts() {
