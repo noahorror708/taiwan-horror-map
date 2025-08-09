@@ -3,48 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
-  <!-- 共用 CSS -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- 共用 header -->
+
+  <!-- Header -->
   <div id="header"></div>
 
-  <!-- 主內容 -->
   <div id="container">
+    <!-- Sidebar -->
     <div id="sidebar">
       <input type="text" id="searchBox" placeholder="搜尋文章...">
       <button onclick="window.location.href='submit.html'">✍️ 我要投稿</button>
       <p>📖 文章清單載入中...</p>
     </div>
+
+    <!-- Map -->
     <div id="map"></div>
   </div>
 
+  <!-- 文章區 -->
   <div id="postArea">
+    <!-- 最新文章 -->
     <div id="postListView">
       <h2 id="latest">最新文章</h2>
       <div id="latestPosts"></div>
     </div>
 
+    <!-- 單篇文章 -->
     <div id="postDetailView" style="display:none;">
       <div class="breadcrumb" id="postBreadcrumb">
-        <a href="#" onclick="goBack()">最新文章</a> &gt; <span id="currentPostTitle">文章標題</span>
+        <a href="#" onclick="goBack()">最新文章</a> &gt; 
+        <span id="currentPostTitle">文章標題</span>
       </div>
       <div id="postDetailContent"></div>
     </div>
   </div>
 
+  <!-- 回到頂端按鈕 -->
   <button id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'});">
     <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="回到頂端">
   </button>
 
-  <!-- 共用 footer -->
+  <!-- Footer -->
   <div id="footer"></div>
 
-  <!-- 共用 JS -->
-  <script src="js/common.js"></script>
-
-  <!-- Google Maps -->
+  <!-- Google Maps API -->
   <script>
     let map;
     function initMap() {
@@ -56,12 +60,10 @@
     }
   </script>
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=你的API_KEY&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
   </script>
 
-  <!-- Firebase 相關 -->
-  <script type="module">
-    // 你的 Firebase 載入文章程式碼...
-  </script>
-</body>
-</html>
+  <!-- Firebase + 自訂 JS -->
+  <script type="module" src="script.js"></script>
+
+  <!--
