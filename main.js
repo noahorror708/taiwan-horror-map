@@ -15,7 +15,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Leaflet 地圖
+// Leaflet 地圖初始化
 const map = L.map("map").setView([23.7, 121], 7);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18,
@@ -29,15 +29,15 @@ const cityOrder = [
   "花蓮縣", "臺東縣", "金門縣", "連江縣"
 ];
 
-// 抓 Firestore 資料
-db.collection("articles").orderBy("timestamp", "desc").get().then(snapshot => {
+// 從 Firestore 抓資料（posts 集合）
+db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
   const latestList = document.getElementById("latest-articles");
   const cityMap = {};
 
   snapshot.forEach(doc => {
     const data = doc.data();
 
-    // 最新文章清單
+    // === 最新文章清單 ===
     const li = document.createElement("li");
     const a = document.createElement("a");
     a.textContent = data.title;
@@ -45,7 +45,7 @@ db.collection("articles").orderBy("timestamp", "desc").get().then(snapshot => {
     li.appendChild(a);
     latestList.appendChild(li);
 
-    // 地圖標記 + 半徑
+    // === 地圖標記 + 半徑圈 ===
     if (data.coordinates) {
       const marker = L.marker(data.coordinates).addTo(map);
       L.circle(data.coordinates, {
@@ -57,7 +57,7 @@ db.collection("articles").orderBy("timestamp", "desc").get().then(snapshot => {
       marker.bindPopup(`<b>${data.title}</b><br>${data.locationName}`);
     }
 
-    // 按縣市分類
+    // === 縣市分類 ===
     if (data.locationName) {
       const city = cityOrder.find(c => data.locationName.startsWith(c));
       if (city) {
@@ -67,7 +67,7 @@ db.collection("articles").orderBy("timestamp", "desc").get().then(snapshot => {
     }
   });
 
-  // 產生抽屜縣市清單
+  // === 抽屜縣市清單 ===
   const cityListEl = document.getElementById("city-list");
   cityOrder.forEach(city => {
     if (cityMap[city]) {
