@@ -1,34 +1,23 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="台灣恐怖地圖 — 收錄台灣各地都市傳說、命案現場、靈異地點，附帶地圖與故事。">
   <title>台灣恐怖地圖</title>
+  <!-- 引入 SEO -->
+  <?php include 'seo.html'; ?>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- 載入 header -->
-  <div id="header"></div>
+  <?php include 'header.html'; ?>
 
-  <main>
-    <section id="map-section">
-      <div id="map" style="height: 400px;"></div>
-    </section>
-    <section id="posts-section">
-      <h2>最新故事</h2>
-      <div id="posts-list"></div>
-    </section>
-  </main>
+  <div class="main-content">
+    <h2>最新故事</h2>
+    <article>
+      <h3>高雄分屍案：河岸惡魔的秘密</h3>
+      <p>高雄，一名73歲男子張介宗，涉嫌連續殺害三名女子，並以電鋸肢解、剝皮，甚至將屍塊投入河中餵魚。警方查獲時，現場血腥駭人，震驚社會。</p>
+      <p>地方居民自此傳言，河岸附近常出現若隱若現的黑影與低語……</p>
+    </article>
+  </div>
 
-  <!-- 載入 footer -->
-  <div id="footer"></div>
-
-  <script>
-    // 載入 header / footer
-    fetch('header.html').then(r => r.text()).then(html => document.getElementById('header').innerHTML = html);
-    fetch('footer.html').then(r => r.text()).then(html => document.getElementById('footer').innerHTML = html);
-  </script>
-  <script src="js/main.js"></script>
+  <?php include 'footer.html'; ?>
 </body>
 </html>
