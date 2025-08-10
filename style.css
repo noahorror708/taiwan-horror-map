@@ -1,0 +1,48 @@
+body {
+  background: #111;
+  color: #eee;
+  font-family: "Noto Sans TC", sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.8;
+}
+
+header, footer {
+  background: #222;
+  color: #ff4444;
+  text-align: center;
+  padding: 1rem;
+}
+
+nav a {
+  color: #fff;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+nav a:hover {
+  color: #ff4444;
+}
+
+h1 {
+  margin: 0;
+}
+
+h2 {
+  border-left: 5px solid #ff4444;
+  padding-left: 10px;
+}
+
+#map {
+  margin: 1rem auto;
+  border: 2px solid #333;
+}
+
+#posts-list {
+  padding: 1rem;
+}
+
+.post-item {
+  border-bottom: 1px solid #333;
+  padding: 0.5rem 0;
+}
