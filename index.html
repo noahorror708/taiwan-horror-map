@@ -1,43 +1,99 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>台灣恐怖地圖</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #111;
+      color: #eee;
+      text-align: center;
+    }
+    header {
+      background: #222;
+      padding: 1rem;
+    }
+    h1 {
+      margin: 0;
+      color: #ff4444;
+    }
+    #map {
+      width: 100%;
+      height: 500px;
+    }
+    .articles {
+      max-width: 800px;
+      margin: 2rem auto;
+      text-align: left;
+      padding: 1rem;
+    }
+    article {
+      background: #1c1c1c;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    }
+    article h2 {
+      color: #ff6666;
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>台灣恐怖地圖</h1>
-    <nav>
-      <a href="index.html">首頁</a> |
-      <a href="submit.html">我要投稿</a> |
-      <a href="about.html">關於本站</a>
-    </nav>
+    <p>收集台灣各地的恐怖傳說</p>
   </header>
 
-  <main>
-    <section id="map" style="height:400px; width:100%;"></section>
+  <!-- 地圖 -->
+  <div id="map"></div>
 
-    <h2>恐怖故事集</h2>
+  <!-- 文章範例 -->
+  <section class="articles">
     <article>
-      <h3>基隆鬼屋</h3>
-      <p>據說這棟廢棄的房子在夜晚會傳出詭異聲響，吸引了不少探險者前來。</p>
+      <h2>基隆鬼屋</h2>
+      <p>基隆有一間廢棄的鬼屋，傳聞夜晚時會出現白影，吸引許多靈異探險者前往。</p>
     </article>
     <article>
-      <h3>台南赤崁樓傳說</h3>
-      <p>據說夜晚有人聽見士兵的腳步聲，像是歷史的回音。</p>
+      <h2>台中鬼學校</h2>
+      <p>某間廢棄學校，學生在晚上經過時聽到鋼琴聲與腳步聲。</p>
     </article>
+  </section>
 
-    <h2>網站累積瀏覽次數</h2>
-    <p id="view-counter">載入中...</p>
-  </main>
+  <script>
+    function initMap() {
+      const taiwan = { lat: 23.6978, lng: 120.9605 };
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 7,
+        center: taiwan,
+        styles: [
+          { elementType: "geometry", stylers: [{ color: "#1d1d1d" }] },
+          { elementType: "labels.text.fill", stylers: [{ color: "#ffffff" }] },
+          { elementType: "labels.text.stroke", stylers: [{ color: "#000000" }] },
+          { featureType: "water", elementType: "geometry", stylers: [{ color: "#222222" }] }
+        ]
+      });
 
-  <footer>
-    <p>© 2025 台灣恐怖地圖</p>
-  </footer>
+      // 範例標記
+      new google.maps.Marker({
+        position: { lat: 25.1317, lng: 121.7392 }, // 基隆
+        map,
+        title: "基隆鬼屋"
+      });
+      new google.maps.Marker({
+        position: { lat: 24.1477, lng: 120.6736 }, // 台中
+        map,
+        title: "台中鬼學校"
+      });
+    }
+  </script>
 
-  <!-- Google Maps API，換成你自己的 API KEY -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap" async defer></script>
+  <!-- ✅ 換上你的 API Key -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
+  </script>
 </body>
 </html>
