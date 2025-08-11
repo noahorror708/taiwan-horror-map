@@ -1,53 +1,49 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
+<head>
+  <meta charset="UTF-8">
+  <title>台灣恐怖地圖</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Leaflet 地圖 CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+      width: 100%;
+      height: 500px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
 <body>
-  <!-- Header -->
+  <!-- header.html -->
   <div id="header"></div>
 
-  <!-- 側邊欄 -->
-  <div id="sidebar">
-    <h2>📖 文章列表</h2>
-    <div id="articleList">載入中…</div>
-  </div>
-
-  <!-- 主要內容 -->
-  <div id="content">
-    <h1>台灣恐怖地圖</h1>
+  <main>
+    <h2>地圖</h2>
     <div id="map"></div>
+    <section id="notes">
+      <h3>周邊記事</h3>
+      <div id="note-list"></div>
+    </section>
+  </main>
 
-    <div id="topPosts">
-      <h2>🔥 今日最熱門文章 TOP 3</h2>
-      <ol id="ranking"><li>載入中…</li></ol>
-    </div>
-
-    <div id="counters">
-      <h2>📊 訪客統計</h2>
-      <p>今日人數：<span id="todayCount">0</span></p>
-      <p>累積人數：<span id="totalCount">0</span></p>
-    </div>
-
-    <div id="submitForm">
-      <h2>📝 我要投稿</h2>
-      <iframe src="https://forms.gle/kDaPh9dUTWN5Zg3i7" width="100%" height="600" frameborder="0"></iframe>
-    </div>
-  </div>
-
-  <!-- 回到頂端按鈕 -->
-  <button id="backToTop">↑</button>
-
-  <!-- Footer -->
+  <!-- footer.html -->
   <div id="footer"></div>
 
-  <!-- 主功能 -->
-  <script src="main.js"></script>
-
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- 載入 header / footer -->
+  <script>
+    fetch('header.html').then(res => res.text()).then(html => {
+      document.getElementById('header').innerHTML = html;
+    });
+    fetch('footer.html').then(res => res.text()).then(html => {
+      document.getElementById('footer').innerHTML = html;
+    });
+  </script>
   <!-- 地圖功能 -->
   <script src="map.js"></script>
-
-  <!-- Google Maps API -->
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
-  </script>
 </body>
 </html>
