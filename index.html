@@ -47,22 +47,10 @@
   <!-- footer 會由 JavaScript 載入 -->
   <div id="footer"></div>
 
-  <!-- Google Maps -->
-  <script>
-    function initMap() {
-      const taiwan = { lat: 23.6978, lng: 120.9605 };
-      const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 7,
-        center: taiwan,
-      });
-      new google.maps.Marker({ position: taiwan, map: map });
-    }
-  </script>
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
-  </script>
-
   <!-- 主功能 JS -->
   <script src="main.js"></script>
-</body>
-</html>
+
+  <!-- Google Maps 功能 -->
+  <script src="map.js"></script>
+  <script async defer
+    src="https://maps.googleapis.com/ma
