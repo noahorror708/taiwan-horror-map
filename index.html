@@ -4,39 +4,87 @@
   <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#111; color:#eee; text-align:center; }
-    #map { height: 400px; width: 100%; margin:20px 0; }
-    #counters, #topPosts, #submit { margin:20px auto; padding:20px; max-width:800px; background:#222; border-radius:12px; }
-    h1,h2 { color:#ff4444; }
+    body { font-family: Arial, sans-serif; background:#111; color:#eee; margin:0; }
+    h1,h2,h3 { color:#ff4444; }
     a { color:#66ccff; text-decoration:none; }
+    #map { height: 400px; width: 100%; margin:20px 0; }
+
+    /* Sidebar */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background: #222;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #content {
+      margin-left: 270px;
+      padding: 20px;
+    }
+    #sidebar ul { list-style:none; padding-left: 15px; }
+    #sidebar li { margin:5px 0; }
+
+    /* Card box */
+    #counters, #topPosts, #submitForm {
+      margin:20px auto; padding:20px; max-width:600px;
+      background:#222; border-radius:12px;
+    }
+
+    /* 回到頂端按鈕 */
+    #backToTop {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ff4444;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      cursor: pointer;
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <h1>台灣恐怖地圖</h1>
-  <div id="map"></div>
-
-  <div id="topPosts">
-    <h2>🔥 今日最熱門文章 TOP 3</h2>
-    <ol id="ranking"><li>載入中…</li></ol>
+  <!-- 左側文章列表 -->
+  <div id="sidebar">
+    <h2>📖 文章列表</h2>
+    <div id="articleList">載入中…</div>
   </div>
 
-  <div id="counters">
-    <h2>📊 訪客統計</h2>
-    <p>今日人數：<span id="todayCount">0</span></p>
-    <p>累積人數：<span id="totalCount">0</span></p>
+  <!-- 主內容 -->
+  <div id="content">
+    <h1>台灣恐怖地圖</h1>
+    <div id="map"></div>
+
+    <!-- 熱門排行 -->
+    <div id="topPosts">
+      <h2>🔥 今日最熱門文章 TOP 3</h2>
+      <ol id="ranking"><li>載入中…</li></ol>
+    </div>
+
+    <!-- 訪客統計 -->
+    <div id="counters">
+      <h2>📊 訪客統計</h2>
+      <p>今日人數：<span id="todayCount">0</span></p>
+      <p>累積人數：<span id="totalCount">0</span></p>
+    </div>
+
+    <!-- 投稿表單 -->
+    <div id="submitForm">
+      <h2>📝 我要投稿</h2>
+      <iframe src="https://forms.gle/kDaPh9dUTWN5Zg3i7" 
+              width="100%" height="600" frameborder="0">載入中…</iframe>
+    </div>
   </div>
 
-  <!-- 投稿表單 -->
-  <div id="submit">
-    <h2>✍️ 我要投稿</h2>
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfjcVl8UNRbgyU79tXhYdE5EgS8n8NagMCYXAvjrXolF2E1mw/viewform?embedded=true"
-            width="100%" height="900" frameborder="0" marginheight="0" marginwidth="0">載入中…</iframe>
-  </div>
-
-  <p>
-    <a href="post1.html">閱讀文章 1</a> | 
-    <a href="post2.html">閱讀文章 2</a>
-  </p>
+  <!-- 回到頂端按鈕 -->
+  <button id="backToTop">↑</button>
 
   <!-- Google Maps -->
   <script>
@@ -50,27 +98,27 @@
     }
   </script>
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
   </script>
 
-  <!-- CountAPI 訪客計數 + 熱門文章 -->
+  <!-- CountAPI + 熱門排行 + Sidebar -->
   <script>
     const NAMESPACE = "taiwan-horror-map";
     const today = new Date();
     const todayKey = `${today.getFullYear()}${today.getMonth()+1}${today.getDate()}`;
 
-    // 累積
+    // 訪客累積
     fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/totalVisitors`)
       .then(r => r.json())
       .then(d => document.getElementById("totalCount").innerText = d.value);
 
-    // 今日
+    // 今日訪客
     fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/visitors_${todayKey}`)
       .then(r => r.json())
       .then(d => document.getElementById("todayCount").innerText = d.value);
 
-    // 動態載入文章清單 (從 posts.json)
-    async function loadRanking() {
+    // 動態讀取文章列表 + 分地區
+    async function loadArticles() {
       let posts = [];
       try {
         const res = await fetch("posts.json");
@@ -79,6 +127,35 @@
         console.error("讀取 posts.json 失敗", e);
       }
 
+      // 分組
+      const grouped = {};
+      posts.forEach(post => {
+        if (!grouped[post.region]) grouped[post.region] = [];
+        grouped[post.region].push(post);
+      });
+
+      const container = document.getElementById("articleList");
+      container.innerHTML = "";
+
+      Object.keys(grouped).forEach(region => {
+        const h3 = document.createElement("h3");
+        h3.textContent = region;
+        container.appendChild(h3);
+
+        const ul = document.createElement("ul");
+        grouped[region].forEach(p => {
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="${p.url}" target="_blank">${p.title}</a>`;
+          ul.appendChild(li);
+        });
+        container.appendChild(ul);
+      });
+
+      // 熱門排行
+      loadRanking(posts);
+    }
+
+    async function loadRanking(posts) {
       let results = [];
       for (let post of posts) {
         let res = await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${post.id}_${todayKey}`)
@@ -95,11 +172,23 @@
       list.innerHTML = "";
       top3.forEach(p => {
         let li = document.createElement("li");
-        li.innerHTML = `<a href="${p.url}">${p.title}</a> - ${p.count} 次觀看`;
+        li.innerHTML = `<a href="${p.url}" target="_blank">${p.title}</a> - ${p.count} 次觀看`;
         list.appendChild(li);
       });
     }
-    loadRanking();
+
+    loadArticles();
+
+    // 回到頂端按鈕
+    const btn = document.getElementById("backToTop");
+    window.onscroll = () => {
+      if (document.documentElement.scrollTop > 200) {
+        btn.style.display = "block";
+      } else {
+        btn.style.display = "none";
+      }
+    };
+    btn.onclick = () => window.scrollTo({top:0, behavior:"smooth"});
   </script>
 </body>
 </html>
