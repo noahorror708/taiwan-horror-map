@@ -3,54 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+    }
+    header {
+      text-align: center;
+      padding: 15px;
+      background: #222;
+      color: #ff4444;
+      font-size: 24px;
+    }
+    #map {
+      width: 100%;
+      height: 80vh; /* 地圖佔螢幕 80% 高度 */
+    }
+  </style>
 </head>
 <body>
-  <!-- header 會由 JavaScript 載入 -->
-  <div id="header"></div>
+  <header>台灣恐怖地圖</header>
 
-  <!-- 左側文章列表 -->
-  <div id="sidebar">
-    <h2>📖 文章列表</h2>
-    <div id="articleList">載入中…</div>
-  </div>
+  <!-- 地圖 -->
+  <div id="map"></div>
 
-  <!-- 主內容 -->
-  <div id="content">
-    <h1>台灣恐怖地圖</h1>
-    <div id="map"></div>
-
-    <!-- 熱門排行 -->
-    <div id="topPosts">
-      <h2>🔥 今日最熱門文章 TOP 3</h2>
-      <ol id="ranking"><li>載入中…</li></ol>
-    </div>
-
-    <!-- 訪客統計 -->
-    <div id="counters">
-      <h2>📊 訪客統計</h2>
-      <p>今日人數：<span id="todayCount">0</span></p>
-      <p>累積人數：<span id="totalCount">0</span></p>
-    </div>
-
-    <!-- 投稿表單 -->
-    <div id="submitForm">
-      <h2>📝 我要投稿</h2>
-      <iframe src="https://forms.gle/kDaPh9dUTWN5Zg3i7" 
-              width="100%" height="600" frameborder="0">載入中…</iframe>
-    </div>
-  </div>
-
-  <!-- 回到頂端按鈕 -->
-  <button id="backToTop">↑</button>
-
-  <!-- footer 會由 JavaScript 載入 -->
-  <div id="footer"></div>
-
-  <!-- 主功能 JS -->
-  <script src="main.js"></script>
-
-  <!-- Google Maps 功能 -->
+  <!-- 地圖邏輯 -->
   <script src="map.js"></script>
   <script async defer
-    src="https://maps.googleapis.com/ma
+    src="https://maps.googleapis.com/maps/api/js?key=你的API金鑰&callback=initMap">
+  </script>
+</body>
+</html>
