@@ -1,95 +1,125 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
-      text-align: center;
-    }
-    header {
-      background: #222;
-      padding: 1rem;
-    }
-    h1 {
-      color: #ff4444;
-      margin: 0;
-    }
-    #map {
-      height: 500px;
-      width: 100%;
-    }
-    #counters {
-      margin: 20px;
-      font-size: 1.2rem;
-    }
-    a.button {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: #ff4444;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-    }
-    a.button:hover {
-      background: #cc0000;
-    }
+    body { font-family: Arial, sans-serif; background:#111; color:#eee; text-align:center; }
+    #map { height: 400px; width: 100%; margin:20px 0; }
+    #counters, #topPosts { margin:20px auto; padding:20px; max-width:600px; background:#222; border-radius:12px; }
+    h1,h2 { color:#ff4444; }
+    a { color:#66ccff; text-decoration:none; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>台灣恐怖地圖</h1>
-    <p>收集台灣各地的都市傳說與恐怖故事</p>
-    <a href="submit.html" class="button">我要投稿</a>
-  </header>
-
-  <!-- 地圖區塊 -->
+  <h1>台灣恐怖地圖</h1>
   <div id="map"></div>
 
-  <!-- 計數器 -->
-  <div id="counters">
-    <p>👥 累積訪客：<span id="totalCount">載入中…</span></p>
-    <p>📅 今日訪客：<span id="todayCount">載入中…</span></p>
+  <div id="topPosts">
+    <h2>🔥 今日最熱門文章 TOP 3</h2>
+    <ol id="ranking"><li>載入中…</li></ol>
   </div>
 
-  <!-- Google Maps API -->
+  <div id="counters">
+    <h2>📊 訪客統計</h2>
+    <p>今日人數：<span id="todayCount">0</span></p>
+    <p>累積人數：<span id="totalCount">0</span></p>
+  </div>
+
+  <p>
+    <a href="submit.html">我要投稿</a>
+  </p>
+
+  <!-- Google Maps -->
   <script>
-    let map;
     function initMap() {
-      map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 23.6978, lng: 120.9605 },
+      const taiwan = { lat: 23.6978, lng: 120.9605 };
+      const map = new google.maps.Map(document.getElementById("map"), {
         zoom: 7,
-        mapTypeId: "roadmap"
+        center: taiwan,
       });
+      new google.maps.Marker({ position: taiwan, map: map });
     }
   </script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap"></script>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
+  </script>
 
-  <!-- 訪客計數器 -->
+  <!-- 訪客計數 -->
   <script>
     const NAMESPACE = "taiwan-horror-map";
-    function getTodayKey() {
-      const d = new Date();
-      return `${d.getFullYear()}${d.getMonth()+1}${d.getDate()}`;
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}${today.getMonth()+1}${today.getDate()}`;
+
+    // 累積人數
+    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/totalVisitors`)
+      .then(r => r.json())
+      .then(d => document.getElementById("totalCount").innerText = d.value);
+
+    // 今日人數
+    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/visitors_${todayKey}`)
+      .then(r => r.json())
+      .then(d => document.getElementById("todayCount").innerText = d.value);
+  </script>
+
+  <!-- 今日熱門文章 TOP 3 -->
+  <script>
+    async function loadRanking() {
+      const list = document.getElementById("ranking");
+      let cacheKey = "ranking_" + todayKey;
+
+      // 快取資料先顯示
+      let cache = localStorage.getItem(cacheKey);
+      if (cache) {
+        try {
+          let top3 = JSON.parse(cache);
+          renderRanking(top3, list);
+        } catch(e) {}
+      }
+
+      // 從 posts.json 抓文章清單
+      let posts = await fetch("posts.json").then(r => r.json());
+
+      // 並行請求觀看數
+      let results = await Promise.allSettled(
+        posts.map(post =>
+          fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${post.id}_${todayKey}`)
+            .then(r => r.json())
+            .then(d => ({
+              title: post.title,
+              url: post.url,
+              count: d.value || 0
+            }))
+            .catch(() => ({
+              title: post.title,
+              url: post.url,
+              count: 0
+            }))
+        )
+      );
+
+      // 整理結果
+      let data = results.map(r => r.value);
+      data.sort((a, b) => b.count - a.count);
+      let top3 = data.slice(0, 3);
+
+      // 更新畫面
+      renderRanking(top3, list);
+
+      // 存到快取
+      localStorage.setItem(cacheKey, JSON.stringify(top3));
     }
-    // 累積訪客
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/total`)
-      .then(res => res.json())
-      .then(res => {
-        document.getElementById("totalCount").innerText = res.value;
+
+    function renderRanking(top3, list) {
+      list.innerHTML = "";
+      top3.forEach(p => {
+        let li = document.createElement("li");
+        li.innerHTML = `<a href="${p.url}">${p.title}</a> - ${p.count} 次觀看`;
+        list.appendChild(li);
       });
-    // 今日訪客
-    const todayKey = getTodayKey();
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${todayKey}`)
-      .then(res => res.json())
-      .then(res => {
-        document.getElementById("todayCount").innerText = res.value;
-      });
+    }
+
+    loadRanking();
   </script>
 </body>
 </html>
