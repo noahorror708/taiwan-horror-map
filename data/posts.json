@@ -1,0 +1,16 @@
+[
+  {
+    "id": 000,
+    "title": "台中某地恐怖故事",
+    "date": "2025-08-10",
+    "locationId": 101,
+    "file": "posts/2025-08-10-taichung.html"
+  },
+  {
+    "id": 001,
+    "title": "花蓮深山靈異事件",
+    "date": "2025-08-09",
+    "locationId": 102,
+    "file": "posts/2025-08-09-hualien.html"
+  }
+]
