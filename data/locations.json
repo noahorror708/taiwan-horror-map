@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "title": "北投神秘廢棄旅館",
+    "lat": 25.1372,
+    "lng": 121.5064,
+    "region": "台北市",
+    "summary": "多年來荒廢的旅館，當地人傳說夜晚會有奇怪聲音與光影。",
+    "url": "articles/beitou-hotel.html"
+  },
+  {
+    "id": "2",
+    "title": "萬華午夜小巷",
+    "lat": 25.0362,
+    "lng": 121.4997,
+    "region": "台北市",
+    "summary": "曾發生多起詭異失蹤案件的小巷，警方至今沒有定論。",
+    "url": "articles/wanhua-alley.html"
+  },
+  {
+    "id": "3",
+    "title": "台中廢棄醫院",
+    "lat": 24.1477,
+    "lng": 120.6736,
+    "region": "台中市",
+    "summary": "廢棄醫院內部留有大量醫療器材與文件，據說有人在裡面聽到呻吟聲。",
+    "url": "articles/taichung-hospital.html"
+  },
+  {
+    "id": "4",
+    "title": "花蓮山區靈異隧道",
+    "lat": 23.9938,
+    "lng": 121.6015,
+    "region": "花蓮縣",
+    "summary": "當地駕駛深夜經過時，會看到不屬於這個世界的身影。",
+    "url": "articles/hualien-tunnel.html"
+  }
+]
