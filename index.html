@@ -3,54 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
-  <style>
-    body { font-family: Arial, sans-serif; background:#111; color:#eee; margin:0; }
-    h1,h2,h3 { color:#ff4444; }
-    a { color:#66ccff; text-decoration:none; }
-    #map { height: 400px; width: 100%; margin:20px 0; }
-
-    /* Sidebar */
-    #sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 250px;
-      height: 100%;
-      background: #222;
-      padding: 20px;
-      overflow-y: auto;
-    }
-    #content {
-      margin-left: 270px;
-      padding: 20px;
-    }
-    #sidebar ul { list-style:none; padding-left: 15px; }
-    #sidebar li { margin:5px 0; }
-
-    /* Card box */
-    #counters, #topPosts, #submitForm {
-      margin:20px auto; padding:20px; max-width:600px;
-      background:#222; border-radius:12px;
-    }
-
-    /* 回到頂端按鈕 */
-    #backToTop {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #ff4444;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
-      cursor: pointer;
-      display: none;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- header 會由 JavaScript 載入 -->
+  <div id="header"></div>
+
   <!-- 左側文章列表 -->
   <div id="sidebar">
     <h2>📖 文章列表</h2>
@@ -86,6 +44,9 @@
   <!-- 回到頂端按鈕 -->
   <button id="backToTop">↑</button>
 
+  <!-- footer 會由 JavaScript 載入 -->
+  <div id="footer"></div>
+
   <!-- Google Maps -->
   <script>
     function initMap() {
@@ -101,94 +62,7 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGoEL8NEw0Vt0X1SJbrFpi5WTI6zPwCoM&callback=initMap">
   </script>
 
-  <!-- CountAPI + 熱門排行 + Sidebar -->
-  <script>
-    const NAMESPACE = "taiwan-horror-map";
-    const today = new Date();
-    const todayKey = `${today.getFullYear()}${today.getMonth()+1}${today.getDate()}`;
-
-    // 訪客累積
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/totalVisitors`)
-      .then(r => r.json())
-      .then(d => document.getElementById("totalCount").innerText = d.value);
-
-    // 今日訪客
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/visitors_${todayKey}`)
-      .then(r => r.json())
-      .then(d => document.getElementById("todayCount").innerText = d.value);
-
-    // 動態讀取文章列表 + 分地區
-    async function loadArticles() {
-      let posts = [];
-      try {
-        const res = await fetch("posts.json");
-        posts = await res.json();
-      } catch(e) {
-        console.error("讀取 posts.json 失敗", e);
-      }
-
-      // 分組
-      const grouped = {};
-      posts.forEach(post => {
-        if (!grouped[post.region]) grouped[post.region] = [];
-        grouped[post.region].push(post);
-      });
-
-      const container = document.getElementById("articleList");
-      container.innerHTML = "";
-
-      Object.keys(grouped).forEach(region => {
-        const h3 = document.createElement("h3");
-        h3.textContent = region;
-        container.appendChild(h3);
-
-        const ul = document.createElement("ul");
-        grouped[region].forEach(p => {
-          const li = document.createElement("li");
-          li.innerHTML = `<a href="${p.url}" target="_blank">${p.title}</a>`;
-          ul.appendChild(li);
-        });
-        container.appendChild(ul);
-      });
-
-      // 熱門排行
-      loadRanking(posts);
-    }
-
-    async function loadRanking(posts) {
-      let results = [];
-      for (let post of posts) {
-        let res = await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${post.id}_${todayKey}`)
-          .then(r => r.json()).catch(() => null);
-        results.push({
-          title: post.title,
-          url: post.url,
-          count: res && res.value ? res.value : 0
-        });
-      }
-      results.sort((a, b) => b.count - a.count);
-      const top3 = results.slice(0, 3);
-      const list = document.getElementById("ranking");
-      list.innerHTML = "";
-      top3.forEach(p => {
-        let li = document.createElement("li");
-        li.innerHTML = `<a href="${p.url}" target="_blank">${p.title}</a> - ${p.count} 次觀看`;
-        list.appendChild(li);
-      });
-    }
-
-    loadArticles();
-
-    // 回到頂端按鈕
-    const btn = document.getElementById("backToTop");
-    window.onscroll = () => {
-      if (document.documentElement.scrollTop > 200) {
-        btn.style.display = "block";
-      } else {
-        btn.style.display = "none";
-      }
-    };
-    btn.onclick = () => window.scrollTo({top:0, behavior:"smooth"});
-  </script>
+  <!-- 主功能 JS -->
+  <script src="main.js"></script>
 </body>
 </html>
