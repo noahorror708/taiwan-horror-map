@@ -1,40 +1,38 @@
-// 模糊化座標（500公尺左右）
-function blurLocation(lat, lng) {
-  const r = 0.005; // 約500公尺
-  const randomLat = lat + (Math.random() - 0.5) * r;
-  const randomLng = lng + (Math.random() - 0.5) * r;
-  return { lat: randomLat, lng: randomLng };
-}
+// 初始化地圖
+const map = L.map('map').setView([23.6978, 120.9605], 8);
 
-function initMap() {
-  const taiwan = { lat: 23.6978, lng: 120.9605 };
-  const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 7,
-    center: taiwan,
-  });
+// 加載地圖圖層（OpenStreetMap）
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
 
-  // 載入 posts.json
-  fetch("posts.json")
-    .then(res => res.json())
-    .then(posts => {
-      posts.forEach(post => {
-        if (post.lat && post.lng) {
-          const blurred = blurLocation(post.lat, post.lng);
-          const marker = new google.maps.Marker({
-            position: blurred,
-            map: map,
-            title: post.title
-          });
+// 從 posts.json 讀取資料
+fetch('posts.json')
+  .then(res => res.json())
+  .then(posts => {
+    posts.forEach(post => {
+      // 原始經緯度
+      const lat = post.lat;
+      const lng = post.lng;
 
-          const info = new google.maps.InfoWindow({
-            content: `<h3>${post.title}</h3><p>${post.description || ""}</p>`
-          });
+      // 模糊處理 (±500公尺)
+      const offsetLat = (Math.random() - 0.5) * 0.009; // 約±500公尺
+      const offsetLng = (Math.random() - 0.5) * 0.009;
 
-          marker.addListener("click", () => {
-            info.open(map, marker);
-          });
-        }
-      });
-    })
-    .catch(err => console.error("載入 posts.json 失敗", err));
-}
+      const blurredLat = lat + offsetLat;
+      const blurredLng = lng + offsetLng;
+
+      // 標記
+      const marker = L.marker([blurredLat, blurredLng])
+        .addTo(map)
+        .bindPopup(`<b>${post.title}</b><br>${post.description}`);
+
+      // 加入周邊記事
+      const noteList = document.getElementById('note-list');
+      const noteItem = document.createElement('div');
+      noteItem.className = 'note';
+      noteItem.innerHTML = `<strong>${post.title}</strong> - ${post.description}`;
+      noteList.appendChild(noteItem);
+    });
+  })
+  .catch(err => console.error('讀取 posts.json 失敗', err));
