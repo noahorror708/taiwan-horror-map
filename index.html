@@ -1,23 +1,48 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+  <meta charset="UTF-8">
   <title>台灣恐怖地圖</title>
-  <!-- 引入 SEO -->
-  <?php include 'seo.html'; ?>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <?php include 'header.html'; ?>
+  <div id="header"></div>
 
-  <div class="main-content">
-    <h2>最新故事</h2>
-    <article>
-      <h3>高雄分屍案：河岸惡魔的秘密</h3>
-      <p>高雄，一名73歲男子張介宗，涉嫌連續殺害三名女子，並以電鋸肢解、剝皮，甚至將屍塊投入河中餵魚。警方查獲時，現場血腥駭人，震驚社會。</p>
-      <p>地方居民自此傳言，河岸附近常出現若隱若現的黑影與低語……</p>
-    </article>
-  </div>
+  <main>
+    <h2>最新文章</h2>
+    <ul id="post-list"></ul>
+  </main>
 
-  <?php include 'footer.html'; ?>
+  <div id="footer"></div>
+
+  <script>
+    // 載入 header / footer
+    fetch('header.html').then(r => r.text()).then(t => document.getElementById('header').innerHTML = t);
+    fetch('footer.html').then(r => r.text()).then(t => document.getElementById('footer').innerHTML = t);
+
+    // 從 GitHub Pages 抓 posts 資料夾清單
+    async function loadPosts() {
+      const repo = '你的GitHub帳號/你的Repo名稱';
+      const apiUrl = `https://api.github.com/repos/${repo}/contents/posts`;
+
+      const res = await fetch(apiUrl);
+      const files = await res.json();
+
+      // 篩選 .html 檔案並排序
+      const htmlFiles = files
+        .filter(f => f.name.endsWith('.html'))
+        .sort((a, b) => b.name.localeCompare(a.name)); // 日期新到舊
+
+      const list = document.getElementById('post-list');
+      htmlFiles.forEach(file => {
+        const title = file.name.replace('.html', '').split('-').slice(3).join('-') || file.name;
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="posts/${file.name}">${title}</a>`;
+        list.appendChild(li);
+      });
+    }
+
+    loadPosts();
+  </script>
 </body>
 </html>
