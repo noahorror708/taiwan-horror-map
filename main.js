@@ -49,12 +49,21 @@ document.addEventListener("DOMContentLoaded", function () {
         marker.bindPopup(`<b>${data.title}</b><br>${data.locationName || ""}`);
       }
 
-      // 城市分類
+      // 城市 + 區域分類
       if (data.locationName) {
         const city = cityOrder.find(c => data.locationName.startsWith(c));
         if (city) {
-          if (!cityMap[city]) cityMap[city] = [];
-          cityMap[city].push({ title: data.title, id: doc.id });
+          if (!cityMap[city]) cityMap[city] = { __count: 0, __districts: {} };
+          cityMap[city].__count++;
+
+          // 區域名稱處理
+          let district = data.locationName.replace(city, "").trim();
+          if (!district) district = "未分類區";
+
+          if (!cityMap[city].__districts[district]) {
+            cityMap[city].__districts[district] = [];
+          }
+          cityMap[city].__districts[district].push({ title: data.title, id: doc.id });
         }
       }
     });
@@ -63,18 +72,60 @@ document.addEventListener("DOMContentLoaded", function () {
     const cityListEl = document.getElementById("city-list");
     cityOrder.forEach(city => {
       if (cityMap[city]) {
+        const cityData = cityMap[city];
         const li = document.createElement("li");
-        li.textContent = city;
-        const ul = document.createElement("ul");
-        cityMap[city].forEach(article => {
-          const ali = document.createElement("li");
-          const a = document.createElement("a");
-          a.textContent = article.title;
-          a.href = `article.html?id=${article.id}`;
-          ali.appendChild(a);
-          ul.appendChild(ali);
+
+        // 縣市名稱 + 投稿數量
+        const cityHeader = document.createElement("div");
+        cityHeader.textContent = `${city} (${cityData.__count})`;
+        cityHeader.style.cursor = "pointer";
+        cityHeader.style.fontWeight = "bold";
+        li.appendChild(cityHeader);
+
+        // 區域清單 (預設隱藏)
+        const ulDistrict = document.createElement("ul");
+        ulDistrict.style.display = "none";
+
+        for (const district in cityData.__districts) {
+          const districtData = cityData.__districts[district];
+          const dli = document.createElement("li");
+
+          // 區名 + 數量
+          const districtHeader = document.createElement("div");
+          districtHeader.textContent = `${district} (${districtData.length})`;
+          districtHeader.style.cursor = "pointer";
+          districtHeader.style.marginLeft = "10px";
+          dli.appendChild(districtHeader);
+
+          // 文章清單 (預設隱藏)
+          const ulArticles = document.createElement("ul");
+          ulArticles.style.display = "none";
+          ulArticles.style.marginLeft = "20px";
+
+          districtData.forEach(article => {
+            const ali = document.createElement("li");
+            const a = document.createElement("a");
+            a.textContent = article.title;
+            a.href = `article.html?id=${article.id}`;
+            ali.appendChild(a);
+            ulArticles.appendChild(ali);
+          });
+
+          // 區手風琴切換
+          districtHeader.addEventListener("click", () => {
+            ulArticles.style.display = ulArticles.style.display === "none" ? "block" : "none";
+          });
+
+          dli.appendChild(ulArticles);
+          ulDistrict.appendChild(dli);
+        }
+
+        // 縣市手風琴切換
+        cityHeader.addEventListener("click", () => {
+          ulDistrict.style.display = ulDistrict.style.display === "none" ? "block" : "none";
         });
-        li.appendChild(ul);
+
+        li.appendChild(ulDistrict);
         cityListEl.appendChild(li);
       }
     });
