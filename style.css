@@ -133,3 +133,29 @@ footer {
 .breadcrumb a:hover {
   text-decoration: underline;
 }
+
+/* --- Footer 導覽按鈕 --- */
+nav {
+  text-align: center;
+  padding: 15px;
+  background-color: #111; /* footer 背景色 */
+}
+
+.nav-btn {
+  display: inline-block;
+  background-color: #ff4444; /* 按鈕底色 */
+  color: #fff;              /* 文字顏色 */
+  padding: 8px 16px;
+  margin: 0 5px;
+  border-radius: 8px;       /* 圓角 */
+  text-decoration: none;    /* 移除底線 */
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.nav-btn:hover {
+  background-color: #fff;   /* 滑鼠移上變白 */
+  color: #ff4444;          /* 文字變紅 */
+  box-shadow: 0 0 10px rgba(255,68,68,0.7);
+}
+
