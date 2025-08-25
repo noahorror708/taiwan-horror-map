@@ -215,8 +215,10 @@
       card.className = "postCard";
       card.style.cursor = "pointer";
       card.innerHTML = `
-        <h3>${post.title}</h3>
-        <p>${(post.content || "").substring(0,100)}...</p>
+  <h3>${post.title}</h3>
+  <p>${(post.content || "").substring(0,100)}...</p>
+  <p style="font-size:14px; color:#aaa;">${post.author || "匿名"} 投稿</p>
+`;
       `;
       card.onclick = () => showPost(post);
       latestDiv.appendChild(card);
