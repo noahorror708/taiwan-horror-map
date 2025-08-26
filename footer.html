@@ -6,3 +6,12 @@
   <a href="submit.html" class="nav-btn">我要投稿</a>
   <a href="about.html" class="nav-btn">投稿授權條款</a>
 </nav>
+// ====== 瀏覽次數計數器 ======
+fetch('https://api.countapi.xyz/hit/taiwan-horror-map/views')
+  .then(res => res.json())
+  .then(data => {
+    const viewCountEl = document.getElementById("viewCount");
+    if (viewCountEl) {
+      viewCountEl.innerText = data.value;
+    }
+  });
