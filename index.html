@@ -214,13 +214,10 @@ latest.forEach(post => {
     let card = document.createElement("div");
     card.className = "postCard";
     card.style.cursor = "pointer";
-    detail.innerHTML = `
-  <div class="postCard">
-    <h3>${post.title}</h3>
-    <p>${post.content}</p>
-    <p><b>地點：</b>${post.locationName}</p>
-  </div>
-`;
+    card.innerHTML = `
+      <h3>${post.title}</h3>
+      <p>${(post.content || "").substring(0,100)}...</p>
+    `;
       card.onclick = () => showPost(post);
       latestDiv.appendChild(card);
     });
