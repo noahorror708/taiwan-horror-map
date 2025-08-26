@@ -218,8 +218,6 @@ latest.forEach(post => {
   <div class="postCard">
     <h3>${post.title}</h3>
     <p>${post.content}</p>
-    <p><b>作者：</b>${post.author || "匿名"} · 
-       ${post.createdAt ? new Date(post.createdAt).toLocaleString() : "時間不明"}</p>
     <p><b>地點：</b>${post.locationName}</p>
   </div>
 `;
