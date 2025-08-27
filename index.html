@@ -163,7 +163,7 @@
     updateMarkersByBounds();
     map.addListener("idle", updateMarkersByBounds);
 
-    // 🔑 確保回到首頁時可以直接顯示「最新文章列表」
+    // 🔑 從 submit.html 回來時，強制顯示最新文章列表
     if (window.location.hash === "#latest") {
       document.getElementById("postDetailView").style.display = "none";
       document.getElementById("postListView").style.display = "block";
@@ -296,10 +296,11 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // ✅ 改良後的 goBack
   function goBack() {
     document.getElementById("postDetailView").style.display = "none";
     document.getElementById("postListView").style.display = "block";
-    document.getElementById("map").scrollIntoView({ behavior: 'smooth' });
+    document.getElementById("latest").scrollIntoView({ behavior: 'smooth' });
   }
 
   loadPosts();
