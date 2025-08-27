@@ -80,15 +80,15 @@
       <div id="latestPosts"></div>
     </div>
 
-<!-- 單篇文章詳細 -->
-<div id="postDetailView" style="display:none;">
-  <div class="breadcrumb" id="postBreadcrumb">
-    <a href="#" onclick="goBack()">最新文章</a> &gt; 
-    <span id="currentPostTitle">文章標題</span>
+    <!-- 單篇文章詳細 -->
+    <div id="postDetailView" style="display:none;">
+      <div class="breadcrumb" id="postBreadcrumb">
+        <a href="#" onclick="goBack()">最新文章</a> &gt; 
+        <span id="currentPostTitle">文章標題</span>
+      </div>
+      <div id="postDetailContent"></div>
+    </div>
   </div>
-  <div id="postDetailContent"></div>
-</div>
-
 
   <!-- 回到頂端 -->
   <button id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'});">
@@ -210,14 +210,18 @@
     const latestDiv = document.getElementById("latestPosts");
     latestDiv.innerHTML = "";
 
-latest.forEach(post => {
-    let card = document.createElement("div");
-    card.className = "postCard";
-    card.style.cursor = "pointer";
-    card.innerHTML = `
-      <h3>${post.title}</h3>
-      <p>${(post.content || "").substring(0,100)}...</p>
-    `;
+    latest.forEach(post => {
+      let card = document.createElement("div");
+      card.className = "postCard";
+      card.style.cursor = "pointer";
+      card.innerHTML = `
+        <h3>${post.title}</h3>
+        <p>${(post.content || "").substring(0,100)}...</p>
+        <p style="font-size:14px; color:#aaa;">
+          ${post.author || "匿名"} 投稿 · 
+          ${post.createdAt ? post.createdAt.toLocaleDateString() : ""}
+        </p>
+      `;
       card.onclick = () => showPost(post);
       latestDiv.appendChild(card);
     });
@@ -270,6 +274,9 @@ latest.forEach(post => {
       <div class="postCard">
         <h3>${post.title}</h3>
         <p>${post.content}</p>
+        <p>${post.author || "匿名"} 投稿 · 
+           ${post.createdAt ? post.createdAt.toLocaleDateString() : "時間不明"}
+        </p>
         <p><b>地點：</b>${post.locationName}</p>
       </div>
     `;
