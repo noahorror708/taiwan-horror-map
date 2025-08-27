@@ -26,6 +26,10 @@
 
     .postCard { background:#222; margin-bottom:15px; padding:15px; border-radius:10px; }
     .postCard h3 { margin-top:0; color:#ff6666; }
+    .postCard p { 
+      white-space: pre-line; /* 保留文字的換行 */
+      line-height: 1.8;      /* 行距更舒服 */
+    }
 
     footer { margin-top:30px; padding:20px; background:#222; text-align:center; font-size:14px; color:#bbb; }
 
@@ -167,8 +171,6 @@
     if (window.location.hash === "#latest") {
       document.getElementById("postDetailView").style.display = "none";
       document.getElementById("postListView").style.display = "block";
-
-      // 延遲一點，等 DOM 完成渲染後再滾動
       setTimeout(() => {
         const latestEl = document.getElementById("latest");
         if (latestEl) latestEl.scrollIntoView({ behavior: "smooth" });
