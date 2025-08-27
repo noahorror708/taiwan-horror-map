@@ -150,6 +150,7 @@
     snap.forEach(doc => {
       const data = doc.data();
 
+      // 🔑 保證 createdAt 轉成 Date
       if (data.createdAt && data.createdAt.toDate) {
         data.createdAt = data.createdAt.toDate();
       }
@@ -163,10 +164,7 @@
     renderSidebar(groups);
     renderLatest(allPosts);
 
-    // 初始化時先顯示範圍內的標記
     updateMarkersByBounds();
-
-    // 地圖移動或縮放結束後更新標記
     map.addListener("idle", updateMarkersByBounds);
   }
 
@@ -220,11 +218,7 @@
         <p>${(post.content || "").substring(0,100)}...</p>
         <p style="color:#aaa; font-size:14px;">
           ${post.author || "匿名"} 投稿 · 
-          ${(post.createdAt && post.createdAt.toDate)
-            ? post.createdAt.toDate().toLocaleDateString()
-            : (post.createdAt
-                ? new Date(post.createdAt).toLocaleDateString()
-                : "時間不明")}
+          ${post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "時間不明"}
         </p>
       `;
       card.onclick = () => showPost(post);
@@ -232,9 +226,8 @@
     });
   }
 
-  // 更新地圖範圍內的標記
   function updateMarkersByBounds() {
-    if (!map.getBounds()) return; // 地圖尚未初始化完成
+    if (!map.getBounds()) return;
     clearMarkers();
 
     const bounds = map.getBounds();
@@ -282,11 +275,7 @@
         <p>${post.content}</p>
         <p style="color:#aaa; font-size:14px;">
           ${post.author || "匿名"} 投稿 · 
-          ${(post.createdAt && post.createdAt.toDate)
-            ? post.createdAt.toDate().toLocaleDateString()
-            : (post.createdAt
-                ? new Date(post.createdAt).toLocaleDateString()
-                : "時間不明")}
+          ${post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "時間不明"}
         </p>
         <p><b>地點：</b>${post.locationName}</p>
       </div>
