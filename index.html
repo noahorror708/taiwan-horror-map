@@ -163,11 +163,16 @@
     updateMarkersByBounds();
     map.addListener("idle", updateMarkersByBounds);
 
-    // 🔑 從 submit.html 回來時，強制顯示最新文章列表
+    // 🔑 確保從 #latest 回來時，正確顯示並滾動到最新文章
     if (window.location.hash === "#latest") {
       document.getElementById("postDetailView").style.display = "none";
       document.getElementById("postListView").style.display = "block";
-      document.getElementById("latest").scrollIntoView({ behavior: "smooth" });
+
+      // 延遲一點，等 DOM 完成渲染後再滾動
+      setTimeout(() => {
+        const latestEl = document.getElementById("latest");
+        if (latestEl) latestEl.scrollIntoView({ behavior: "smooth" });
+      }, 300);
     }
   }
 
